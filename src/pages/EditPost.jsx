@@ -53,7 +53,7 @@ const EditPost = () => {
                   user: post.user,
                })
             );
-            navigate("/");
+            navigate(`/posts/${postId}`);
          } catch (error) {
             toast.error(error.message);
             console.warn(error.message);

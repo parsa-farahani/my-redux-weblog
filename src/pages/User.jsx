@@ -31,6 +31,9 @@ const User = () => {
          </h2>
          <hr />
          <div>
+            <h3 className="h5">
+               Posts
+            </h3>
             <ul>
                {
                   userPosts.map(post => (

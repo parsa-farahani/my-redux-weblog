@@ -7,12 +7,16 @@
     {
       "id": "Y62WniDM1AZeAgM71Q-2F",
       "fullname": "Ali Amiri"
+    },
+    {
+      "id": "JYnmEU9qRhdyFtpFKQCeR",
+      "fullname": "Amin Karimi"
     }
   ],
   "posts": [
     {
       "id": "CXtC5hbRLQ4GWGi7ffwdm",
-      "title": "my post 1",
+      "title": "my post 11",
       "content": "post 1 content",
       "user": "l8oflKgVZInxXzyBAIgr5"
     },
@@ -21,6 +25,12 @@
       "title": "My Post 2",
       "content": "post 2 content",
       "user": "l8oflKgVZInxXzyBAIgr5"
+    },
+    {
+      "id": "AiKtCuIKRub0owS12OwQL",
+      "title": "amir postaaa",
+      "content": "aaaaaa",
+      "user": "Y62WniDM1AZeAgM71Q-2F"
     }
   ]
 }
