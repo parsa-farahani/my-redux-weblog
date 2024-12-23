@@ -2,12 +2,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchPostsThunk, selectAllPosts, selectPostById, selectPostsError, selectPostsFetchStatus } from "../features/posts/postsSlice";
 import { selectUserById } from "../features/users/usersSlice";
 import PostAuthor from "../components/PostAuthor";
-import { useEffect } from "react";
+import { memo, useEffect } from "react";
 import { MdError } from "react-icons/md";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
-const Post = ( { postId } ) => {
+let Post = ( { postId } ) => {
    // Redux
    const post = useSelector(state => selectPostById(state, postId));
 
@@ -24,6 +24,8 @@ const Post = ( { postId } ) => {
             </div>
          </div>
          
+         <hr />
+
          <p>
             {
                post.content
@@ -38,6 +40,8 @@ const Post = ( { postId } ) => {
       </article>
    )
 }
+
+Post = memo(Post);
 
 const Home = () => {
    // Redux
