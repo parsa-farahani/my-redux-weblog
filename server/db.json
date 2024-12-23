@@ -1,0 +1,26 @@
+{
+  "users": [
+    {
+      "id": "l8oflKgVZInxXzyBAIgr5",
+      "fullname": "Parsa Fara"
+    },
+    {
+      "id": "Y62WniDM1AZeAgM71Q-2F",
+      "fullname": "Ali Amiri"
+    }
+  ],
+  "posts": [
+    {
+      "id": "CXtC5hbRLQ4GWGi7ffwdm",
+      "title": "my post 1",
+      "content": "post 1 content",
+      "user": "l8oflKgVZInxXzyBAIgr5"
+    },
+    {
+      "id": "lvDnN83Kc3dfMVGfNgnUh",
+      "title": "My Post 2",
+      "content": "post 2 content",
+      "user": "l8oflKgVZInxXzyBAIgr5"
+    }
+  ]
+}

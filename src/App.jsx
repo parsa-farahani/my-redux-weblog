@@ -1,14 +1,76 @@
-import { useState } from 'react'
+import { useEffect, useState } from "react";
+import MainLayout from "./layouts/MainLayout";
+import { Outlet } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchUsersThunk } from "./features/users/usersSlice";
+import { toast } from "react-toastify";
+import { fetchPostsThunk, selectPostsFetchStatus } from "./features/posts/postsSlice";
+
+const App = () => {
+
+   // states
+   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
+
+   // Redux
+   const postsFetchStatus = useSelector(selectPostsFetchStatus);
+   const dispatch = useDispatch();
+
+   // fetch posts
+   useEffect(() => {
+      let ignore = false
+
+      const fetchPosts = async () => {
+         try {
+            await dispatch(
+               fetchPostsThunk()
+            )
+         } catch (error) {
+            toast.error("Error fetch Posts: " + error.message);
+            console.warn(error);
+         }
+      }
+
+      if (postsFetchStatus === "idle" && !ignore) {
+         fetchPosts();
+      }
+
+      return () => {
+         ignore = true;
+      }
+   }, [dispatch, postsFetchStatus])
 
 
-function App() {
-  const [count, setCount] = useState(0)
+   // fetch users
+   useEffect(() => {
+      let ignore = false
 
-  return (
-    <>
-      
-    </>
-  )
-}
+      const fetchUsers = async () => {
+         setIsLoadingUsers(true);
+         try {
+            await dispatch(fetchUsersThunk());
+         } catch (error) {
+            toast.error("Failed to fetch users: " + error.message);
+            console.warn(error);
+         } finally {
+            setIsLoadingUsers(false);
+         }
+      };
 
-export default App
+      if (!ignore) {
+         fetchUsers();
+      }
+
+      return () => {
+         ignore = true;
+      }
+   }, [dispatch]);
+
+
+   return (
+      <MainLayout isLoadingUsers={isLoadingUsers} >
+         <Outlet />
+      </MainLayout>
+   );
+};
+
+export default App;

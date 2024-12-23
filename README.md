@@ -1,8 +1,6 @@
-# React + Vite
+# Fetch Data Thunks (inside Slice)
+- in this branch, the async operations (users, posts) are handled inside 'Slices', using 'plain Thunks'
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Note:  the showing 'visual states' (pending/fulfilled/rejected) is done:
+   + for 'posts', in their 'state.status' logic & reducers -> UI gets the 'status' by Selector
+   + for 'users', in UI by 'states'
