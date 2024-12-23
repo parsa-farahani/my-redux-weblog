@@ -9,6 +9,7 @@ import { fetchPostsThunk, selectPostsFetchStatus } from "./features/posts/postsS
 const App = () => {
 
    // states
+   const [isLoadingPosts, setIsLoadingPosts] = useState(false);
    const [isLoadingUsers, setIsLoadingUsers] = useState(false);
 
    // Redux
@@ -20,6 +21,7 @@ const App = () => {
       let ignore = false
 
       const fetchPosts = async () => {
+         setIsLoadingPosts(true);
          try {
             await dispatch(
                fetchPostsThunk()
@@ -27,6 +29,8 @@ const App = () => {
          } catch (error) {
             toast.error("Error fetch Posts: " + error.message);
             console.warn(error);
+         } finally {
+            setIsLoadingPosts(false);
          }
       }
 
@@ -67,7 +71,7 @@ const App = () => {
 
 
    return (
-      <MainLayout isLoadingUsers={isLoadingUsers} >
+      <MainLayout isLoadingUsers={isLoadingUsers} isLoadingPosts={isLoadingPosts} >
          <Outlet />
       </MainLayout>
    );

@@ -2,6 +2,7 @@ import { useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
 import { selectUserById } from "../features/users/usersSlice";
 import { selectUserPosts } from "../features/posts/postsSlice";
+import { IoIosAlert } from "react-icons/io";
 
 
 
@@ -16,9 +17,16 @@ const User = () => {
 
    if (!user) {
       return (
-         <p>
-            Not Found the User
-         </p>
+         <section className="container">
+            <p className="alert alert-secondary">
+               <span className="icon me-2">
+                  <IoIosAlert />
+               </span>
+               <span>
+                  Not Found the User
+               </span>
+            </p>
+         </section>
       )
    }
 
