@@ -1,5 +1,9 @@
-import { createAsyncThunk, createSelector, createSlice, nanoid } from "@reduxjs/toolkit";
+import { createAsyncThunk, createEntityAdapter, createSelector, createSlice, nanoid } from "@reduxjs/toolkit";
 import { addPostServer, deletePostServer, getPostServer, getPostsServer, updatePostServer } from "../../services/postsServices";
+
+// const postsAdapter = createEntityAdapter({
+//    sortComparer: (post1, post2) => post
+// })
 
 const initialState = {
    posts: [],
