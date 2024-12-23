@@ -16,9 +16,11 @@ const User = () => {
 
    if (!user) {
       return (
-         <p>
-            Not Found the User
-         </p>
+         <div className="container">
+            <p>
+               Not Found the User
+            </p>
+         </div>
       )
    }
 
@@ -34,19 +36,29 @@ const User = () => {
             <h3 className="h5">
                Posts
             </h3>
-            <ul>
+            <div>
                {
-                  userPosts.map(post => (
-                     <li key={post.id}>
-                        <Link to={`/posts/${post.id}`} >
-                           {
-                              post.title
-                           }
-                        </Link>
-                     </li>
-                  ))
+                  (userPosts && userPosts.length > 0) ? (
+                     <ul>
+                        {
+                           userPosts.map(post => (
+                              <li key={post.id}>
+                                 <Link to={`/posts/${post.id}`} >
+                                    {
+                                       post.title
+                                    }
+                                 </Link>
+                              </li>
+                           ))
+                        }
+                     </ul>
+                  ) : (
+                     <p>
+                        This user hasn not any post yet!
+                     </p>
+                  )
                }
-            </ul>
+            </div>
          </div>
       </section>
    );

@@ -1,10 +1,10 @@
 import { Outlet } from "react-router-dom";
 import Header from "../components/Header";
 import { ToastContainer } from "react-toastify";
-import LoadingUsers from "../components/LoadingUsers";
+import LoadingData from "../components/LoadingData";
 
 
-const MainLayout = ( { children, isLoadingUsers } ) => {
+const MainLayout = ( { children, isLoadingUsers, isLoadingPosts } ) => {
    return (
       <>
          <Header />
@@ -15,8 +15,8 @@ const MainLayout = ( { children, isLoadingUsers } ) => {
          </main>
          <ToastContainer theme="colored" />
          {
-            (isLoadingUsers) && (
-               <LoadingUsers />
+            (isLoadingUsers || isLoadingPosts) && (
+               <LoadingData />
             )
          }
       </>

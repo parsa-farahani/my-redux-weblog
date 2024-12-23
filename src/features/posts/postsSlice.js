@@ -4,10 +4,10 @@ import { addPostServer, deletePostServer, getPostServer, getPostsServer, updateP
 const initialState = {
    posts: [],
    status: {
-      fetch: "idle",
-      add: "idle",
-      delete: "idle",
-      edit: "idle",
+      fetchPosts: "idle",
+      addPost: "idle",
+      deletePost: "idle",
+      editPost: "idle",
    },
    error: null,
 }
@@ -15,46 +15,50 @@ const initialState = {
 const postsSlice = createSlice({
    name: "posts",
    initialState,
-   reducers: {
-      updateStatus: (state, action) => {
-         const { operation, status } = action.payload;
-         state.status[operation] = status;
-      },
-      addError: (state, action) => {
-         console.log(action.error, action.payload);
-         state.error = action.payload;
-      },
-      clearError: (state, action) => {
-         state.error = null;
-      },
-      // loadPosts: (state, action) => {
-      //    state.posts = action.payload;
-      // },
-      // addPost: (state, action) => {
-      //    state.posts.push(action.payload);
-      // },
-      // deletePost: (state, action) => {
-      //    const { postId } = action.payload;
-      //    state.posts = state.posts.filter(post => post.id !== postId);
-      // },
-      // editPost: (state, action) => {
-      //    const { id, title, content } = action.payload;  // new post-object
-      //    const existingPost = state.posts.find(post => post.id === id);
-      //    existingPost.title = title;
-      //    existingPost.content = content;
-      // },
-   },
+   reducers: {},
    extraReducers: (builder) => {
       builder
-      .addCase( fetchPostsThunk.pending, (state, action) => {
-         
-      } )
       .addCase( fetchPostsThunk.fulfilled, (state, action) => {
-
+         state.posts = action.payload;
+         state.status.fetchPosts = "completed";
       } )
-      .addCase( fetchPostsThunk.rejected, (state, action) => {
-
+      .addCase( addPostThunk.fulfilled, (state, action) => {
+         state.posts.push(action.payload);
+         state.status.addPost = "completed";
       } )
+      .addCase( editPostThunk.fulfilled, (state, action) => {
+         const { id, title, content } = action.payload;
+         const existingPost = state.posts.find(post => post.id === id);
+         existingPost.title = title;
+         existingPost.content = content;
+         state.status.editPost = "completed";
+      } )
+      .addCase( deletePostThunk.fulfilled, (state, action) => {
+         const postId = action.payload;
+         console.log(postId);
+         state.posts = state.posts.filter(post => post.id !== postId);
+         state.status.deletePost = "completed";
+      } )
+      .addMatcher(  // handles 'pending' status
+         action => {
+            return action.type.endsWith('/pending') && ['fetchPosts', 'addPost', 'editPost', 'deletePost'].includes(action.type.split('/')[1]);
+         },
+         (state, action) => {
+            const operation = action.type.split("/")[1];
+            state.status[operation] = "pending";
+         }
+      )
+      .addMatcher(  // handles 'rejected' status -> adds 'action.error.message' to 'state.error'
+         action => {
+            return action.type.endsWith('/rejected') && ['fetchPosts', 'addPost', 'editPost', 'deletePost'].includes(action.type.split('/')[1]);
+         },
+         (state, action) => {
+            console.log(action.type);
+            const operation = action.split("/")[1];
+            state.status[operation] = "failed";
+            state.error = action.error.message;
+         }
+      )
    },
 });
 
@@ -62,7 +66,7 @@ const postsSlice = createSlice({
 // AsyncThunks (pending/fulfilled/rejected)
 // + fetch
 export const fetchPostsThunk = createAsyncThunk( "posts/fetchPosts", async () => {
-   const response = await getPostServer();
+   const response = await getPostsServer();
    return response.data;
 } );
 
@@ -92,10 +96,10 @@ export const editPostThunk = createAsyncThunk( "posts/editPost", async (post) =>
 // Selectors
 export const selectAllPosts = (state) => state.posts.posts;
 export const selectPostById = (state, postId) => state.posts.posts.find(post => post.id === postId);
-export const selectPostsFetchStatus = (state) => state.posts.status.fetch;
-export const selectPostsAddStatus = (state) => state.posts.status.add;
-export const selectPostsDeleteStatus = (state) => state.posts.status.delete;
-export const selectPostsEditStatus = (state) => state.posts.status.edit;
+export const selectPostsFetchStatus = (state) => state.posts.status.fetchPosts;
+export const selectPostsAddStatus = (state) => state.posts.status.addPost;
+export const selectPostsDeleteStatus = (state) => state.posts.status.deletePost;
+export const selectPostsEditStatus = (state) => state.posts.status.editPost;
 export const selectPostsError = (state) => state.posts.error;
 // + Memoized
 export const selectUserPosts = createSelector(  // args: state, userId

@@ -1,4 +1,4 @@
-const LoadingUsers = () => {
+const LoadingData = () => {
    return (
       <div className="loading-modal-cont">
          <div className="loading-modal-inner">
@@ -16,4 +16,4 @@ const LoadingUsers = () => {
    );
 }
  
-export default LoadingUsers;
+export default LoadingData;
