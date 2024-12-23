@@ -1,0 +1,23 @@
+html,
+body {
+   background-color: #111;
+   color: #ddd;
+   font-size: 100%;
+}
+
+section {
+   padding-top: 1rem;
+   padding-bottom: 1rem;
+}
+
+.posts-list {
+   display: flex;
+   flex-direction: column;
+   gap: .75rem;
+}
+
+.post {
+   padding: .75rem;
+   border: 1px solid #dddddd7a;
+   border-radius: 7px;
+}

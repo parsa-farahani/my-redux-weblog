@@ -1,13 +1,14 @@
 import { useState } from 'react'
+import MainLayout from './layouts/MainLayout'
+import { Outlet } from 'react-router-dom'
 
 
-function App() {
-  const [count, setCount] = useState(0)
+const App = () => {
 
   return (
-    <>
-      
-    </>
+    <MainLayout>
+      <Outlet />
+    </MainLayout>
   )
 }
 

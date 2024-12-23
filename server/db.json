@@ -1,0 +1,26 @@
+{
+   "users": [
+      {
+         "id": "l1QxTNTT4xKSDUZ_PvETR",
+         "fullname": "Parsa Farahani"
+      },
+      {
+         "id": "WhQxRg2Cqjs0u7giceJQZ",
+         "fullname": "Ali Amiri"
+      }
+   ],
+   "posts": [
+      {
+         "id": "nUdF0V8arPYNyuhItB0pn",
+         "title": "my first post",
+         "content": "first post content",
+         "user": "l1QxTNTT4xKSDUZ_PvETR"
+      },
+      {
+         "id": "qeqP1zqkXQUug9S_tlTdP",
+         "title": "my second post",
+         "content": "second post content",
+         "user": "WhQxRg2Cqjs0u7giceJQZ"
+      }
+   ]
+}
