@@ -1,5 +1,5 @@
-import { createSelector, createSlice, nanoid } from "@reduxjs/toolkit";
-import { addPostServer, deletePostServer, getPostsServer, updatePostServer } from "../../services/postsServices";
+import { createAsyncThunk, createSelector, createSlice, nanoid } from "@reduxjs/toolkit";
+import { addPostServer, deletePostServer, getPostServer, getPostsServer, updatePostServer } from "../../services/postsServices";
 
 const initialState = {
    posts: [],
@@ -27,102 +27,66 @@ const postsSlice = createSlice({
       clearError: (state, action) => {
          state.error = null;
       },
-      loadPosts: (state, action) => {
-         state.posts = action.payload;
-      },
-      addPost: (state, action) => {
-         state.posts.push(action.payload);
-      },
-      deletePost: (state, action) => {
-         const { postId } = action.payload;
-         state.posts = state.posts.filter(post => post.id !== postId);
-      },
-      editPost: (state, action) => {
-         const { id, title, content } = action.payload;  // new post-object
-         const existingPost = state.posts.find(post => post.id === id);
-         existingPost.title = title;
-         existingPost.content = content;
-      },
+      // loadPosts: (state, action) => {
+      //    state.posts = action.payload;
+      // },
+      // addPost: (state, action) => {
+      //    state.posts.push(action.payload);
+      // },
+      // deletePost: (state, action) => {
+      //    const { postId } = action.payload;
+      //    state.posts = state.posts.filter(post => post.id !== postId);
+      // },
+      // editPost: (state, action) => {
+      //    const { id, title, content } = action.payload;  // new post-object
+      //    const existingPost = state.posts.find(post => post.id === id);
+      //    existingPost.title = title;
+      //    existingPost.content = content;
+      // },
    },
-   extraReducers: (builder) => {},
+   extraReducers: (builder) => {
+      builder
+      .addCase( fetchPostsThunk.pending, (state, action) => {
+         
+      } )
+      .addCase( fetchPostsThunk.fulfilled, (state, action) => {
+
+      } )
+      .addCase( fetchPostsThunk.rejected, (state, action) => {
+
+      } )
+   },
 });
 
 
-// Thunks
+// AsyncThunks (pending/fulfilled/rejected)
 // + fetch
-export const fetchPostsThunk = () => {
-   return async (dispatch, getState) => {
-      try {
-         dispatch( updateStatus({operation: "fetch", status: "pending"}) );
-         const response = await getPostsServer();
-         dispatch(
-            loadPosts(response.data)
-         )
-         dispatch( updateStatus({operation: "fetch", status: "completed"}) );
-         dispatch( clearError() );
-      } catch (error) {
-         console.warn(error);
-         dispatch( updateStatus({operation: "fetch", status: "failed"}) );
-         dispatch( addError(error.message) );
-      }
-   }
-}
+export const fetchPostsThunk = createAsyncThunk( "posts/fetchPosts", async () => {
+   const response = await getPostServer();
+   return response.data;
+} );
+
 
 // + add
-export const addPostThunk = (post) => {
-   return async (dispatch, getState) => {
-      try {
-         dispatch( updateStatus({operation: "add", status: "pending"}) );
-         const response = await addPostServer(post);
-         dispatch(
-            addPost(response.data)
-         )
-         dispatch( updateStatus({operation: "add", status: "completed"}) );
-         dispatch( clearError() );
-      } catch (error) {
-         console.warn(error);
-         dispatch( updateStatus({operation: "add", status: "failed"}) );
-         dispatch( addError(error.message) );
-      }
-   }
-}
+export const addPostThunk = createAsyncThunk( "posts/addPost", async (post) => {
+   const response = await addPostServer(post);
+   return response.data;
+} );
+
 
 // + delete
-export const deletePostThunk = (postId) => {
-   return async (dispatch, getState) => {
-      try {
-         dispatch( updateStatus({operation: "delete", status: "pending"}) );
-         await deletePostServer(postId);
-         dispatch(
-            deletePost( { postId } )
-         )
-         dispatch( updateStatus({operation: "delete", status: "completed"}) );
-         dispatch( clearError() );
-      } catch (error) {
-         dispatch( updateStatus({operation: "delete", status: "failed"}) );
-         dispatch( addError(error.message) );
-      }
-   }
-}
+export const deletePostThunk = createAsyncThunk( "posts/deletePost", async (postId) => {
+   await deletePostServer(postId);
+   return postId;
+} );
+
 
 // + edit
-export const editPostThunk = (post) => {
-   return async (dispatch, getState) => {
-      try {
-         dispatch( updateStatus({operation: "edit", status: "pending"}) );
-         const response = await updatePostServer(post, post.id);
-         dispatch(
-            editPost(response.data)
-         )
-         dispatch( updateStatus({operation: "edit", status: "completed"}) );
-         dispatch( clearError() );
-      } catch (error) {
-         console.warn(error);
-         dispatch( updateStatus({operation: "edit", status: "failed"}) );
-         dispatch( addError(error.message) );
-      }
-   }
-}
+export const editPostThunk = createAsyncThunk( "posts/editPost", async (post) => {
+   const response = await updatePostServer(post, post.id);
+   return response.data;
+} )
+
 
 
 // Selectors
