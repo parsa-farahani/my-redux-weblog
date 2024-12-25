@@ -4,7 +4,7 @@ import { Outlet } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUsersThunk } from "./features/users/usersSlice";
 import { toast } from "react-toastify";
-import { fetchPostsThunk, selectPostsFetchStatus } from "./features/posts/postsSlice";
+import { selectPostsFetchStatus } from "./features/posts/postsSlice";
 
 const App = () => {
 
@@ -17,28 +17,28 @@ const App = () => {
    const dispatch = useDispatch();
 
    // fetch posts
-   useEffect(() => {
-      let ignore = false
+   // useEffect(() => {
+   //    let ignore = false
 
-      const fetchPosts = async () => {
-         try {
-            await dispatch(
-               fetchPostsThunk()
-            ).unwrap()
-         } catch (error) {
-            toast.error("Error fetch Posts: " + error.message);
-            console.warn(error);
-         }
-      }
+   //    const fetchPosts = async () => {
+   //       try {
+   //          await dispatch(
+   //             fetchPostsThunk()
+   //          ).unwrap()
+   //       } catch (error) {
+   //          toast.error("Error fetch Posts: " + error.message);
+   //          console.warn(error);
+   //       }
+   //    }
 
-      if (postsFetchStatus === "idle" && !ignore) {
-         fetchPosts();
-      }
+   //    if (postsFetchStatus === "idle" && !ignore) {
+   //       fetchPosts();
+   //    }
 
-      return () => {
-         ignore = true;
-      }
-   }, [dispatch, postsFetchStatus])
+   //    return () => {
+   //       ignore = true;
+   //    }
+   // }, [dispatch, postsFetchStatus])
 
 
    // fetch users

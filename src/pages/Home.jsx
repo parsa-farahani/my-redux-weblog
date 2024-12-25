@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { fetchPostsThunk, selectAllPosts, selectPostById, selectPostsError, selectPostsFetchStatus } from "../features/posts/postsSlice";
+import { selectAllPosts, selectPostById, selectPostsError, selectPostsFetchStatus } from "../features/posts/postsSlice";
 import { selectUserById } from "../features/users/usersSlice";
 import PostAuthor from "../components/PostAuthor";
 import { memo, useEffect } from "react";
@@ -7,6 +7,7 @@ import { MdError } from "react-icons/md";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import PostDate from "../components/PostDate";
+import { useGetPostQuery } from "../api/apiSlice";
 
 let Post = ( { postId } ) => {
    // Redux
@@ -50,10 +51,20 @@ Post = memo(Post);
 
 const Home = () => {
    // Redux
-   const dispatch = useDispatch();
-   const posts = useSelector(selectAllPosts);
-   const postsFetchStatus = useSelector(selectPostsFetchStatus);
-   const postsError = useSelector(selectPostsError);
+   // const dispatch = useDispatch();
+   // const posts = useSelector(selectAllPosts);
+   // const postsFetchStatus = useSelector(selectPostsFetchStatus);
+   // const postsError = useSelector(selectPostsError);
+
+   // RTK-Query
+   const {
+      data: posts = [],
+      isLoading: isLoadingPosts,
+      isError: isErrorPosts,
+      isSuccess: isSuccessPosts,
+      error: postsError
+   } = useGetPostQuery();
+
 
    if (!posts) {
       return (
@@ -72,7 +83,7 @@ const Home = () => {
          </h2>
          <hr />
          {
-            (postsFetchStatus === 'completed') ? (
+            (isSuccessPosts) ? (
                <div className="posts-list">
                   {
                      posts.map(post => (
@@ -80,11 +91,11 @@ const Home = () => {
                      ))
                   }
                </div>      
-            ) : (postsFetchStatus === "pending") ? (
+            ) : (isLoadingPosts) ? (
                <p>
                   Loading posts...
                </p>
-            ) : (postsFetchStatus === "failed") ? (
+            ) : (isErrorPosts) ? (
                <p className="text-danger">
                   <span className="icon me-2" style={{verticalAlign: "bottom"}}>
                      <MdError />
