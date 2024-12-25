@@ -6,6 +6,7 @@ import { memo, useEffect } from "react";
 import { MdError } from "react-icons/md";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import PostDate from "../components/PostDate";
 
 let Post = ( { postId } ) => {
    // Redux
@@ -19,8 +20,12 @@ let Post = ( { postId } ) => {
                   post.title
                }
             </h3>
-            <div >
+            <div className="d-flex gap-3" >
                <PostAuthor userId={post.user} />
+               <span className="text-secondary">
+                  &#x2022;
+               </span>
+               <PostDate timeStampISO={post.date} />
             </div>
          </div>
          
@@ -50,29 +55,15 @@ const Home = () => {
    const postsFetchStatus = useSelector(selectPostsFetchStatus);
    const postsError = useSelector(selectPostsError);
 
-   // useEffect(() => {
-   //    let ignore = false
-
-   //    const fetchPosts = async () => {
-   //       try {
-   //          await dispatch(
-   //             fetchPostsThunk()
-   //          )
-   //       } catch (error) {
-   //          toast.error("Error fetch Posts: " + error.message);
-   //          console.warn(error);
-   //       }
-   //    }
-
-   //    if (postsFetchStatus === "idle" && !ignore) {
-   //       fetchPosts();
-   //    }
-
-   //    return () => {
-   //       ignore = true;
-   //    }
-   // }, [dispatch])
-
+   if (!posts) {
+      return (
+         <div className="container py-4">
+            <p className="alert alert-secondary">
+               Not found any Post!
+            </p>
+         </div>
+      )
+   }
 
    return (
       <section className="container">

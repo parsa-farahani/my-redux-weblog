@@ -1,12 +1,11 @@
 import { createAsyncThunk, createEntityAdapter, createSelector, createSlice, nanoid } from "@reduxjs/toolkit";
 import { addPostServer, deletePostServer, getPostServer, getPostsServer, updatePostServer } from "../../services/postsServices";
 
-// const postsAdapter = createEntityAdapter({
-//    sortComparer: (post1, post2) => post
-// })
+const postsAdapter = createEntityAdapter({
+   sortComparer: (post1, post2) => post2.date.localeCompare(post1.date),
+});
 
-const initialState = {
-   posts: [],
+const initialState = postsAdapter.getInitialState({
    status: {
       fetchPosts: "idle",
       addPost: "idle",
@@ -14,7 +13,10 @@ const initialState = {
       editPost: "idle",
    },
    error: null,
-}
+});
+// { ids: [postId, ...], entities: { postId: post, ... }, status, error }
+
+
 
 const postsSlice = createSlice({
    name: "posts",
@@ -23,24 +25,29 @@ const postsSlice = createSlice({
    extraReducers: (builder) => {
       builder
       .addCase( fetchPostsThunk.fulfilled, (state, action) => {
-         state.posts = action.payload;
+         postsAdapter.upsertMany(state, action.payload);   // initializes the 'Adapter' with fetched-data
          state.status.fetchPosts = "completed";
       } )
       .addCase( addPostThunk.fulfilled, (state, action) => {
-         state.posts.push(action.payload);
+         postsAdapter.addOne(state, action.payload);
          state.status.addPost = "completed";
       } )
       .addCase( editPostThunk.fulfilled, (state, action) => {
          const { id, title, content } = action.payload;
-         const existingPost = state.posts.find(post => post.id === id);
-         existingPost.title = title;
-         existingPost.content = content;
+         // const existingPost = state.entities[id];
+         // existingPost.title = title;
+         // existingPost.content = content;
+         postsAdapter.updateOne( state, {
+            id: id,
+            changes: {
+               title,
+               content,
+            }
+         } );
          state.status.editPost = "completed";
       } )
       .addCase( deletePostThunk.fulfilled, (state, action) => {
-         const postId = action.payload;
-         console.log(postId);
-         state.posts = state.posts.filter(post => post.id !== postId);
+         postsAdapter.removeOne(state, action.payload);
          state.status.deletePost = "completed";
       } )
       .addMatcher(  // handles 'pending' status
@@ -57,7 +64,6 @@ const postsSlice = createSlice({
             return action.type.endsWith('/rejected') && ['fetchPosts', 'addPost', 'editPost', 'deletePost'].includes(action.type.split('/')[1]);
          },
          (state, action) => {
-            console.log(action.type);
             const operation = action.split("/")[1];
             state.status[operation] = "failed";
             state.error = action.error.message;
@@ -98,14 +104,18 @@ export const editPostThunk = createAsyncThunk( "posts/editPost", async (post) =>
 
 
 // Selectors
-export const selectAllPosts = (state) => state.posts.posts;
-export const selectPostById = (state, postId) => state.posts.posts.find(post => post.id === postId);
+// + Entity-Adapter Selectors
+export const {
+   selectAll: selectAllPosts,
+   selectById: selectPostById,
+} = postsAdapter.getSelectors( state => state.posts );
+// + Normal Selectors
 export const selectPostsFetchStatus = (state) => state.posts.status.fetchPosts;
 export const selectPostsAddStatus = (state) => state.posts.status.addPost;
 export const selectPostsDeleteStatus = (state) => state.posts.status.deletePost;
 export const selectPostsEditStatus = (state) => state.posts.status.editPost;
 export const selectPostsError = (state) => state.posts.error;
-// + Memoized
+// + Memoized Selectors
 export const selectUserPosts = createSelector(  // args: state, userId
    selectAllPosts,
    (state, userId) => userId,

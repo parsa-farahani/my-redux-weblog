@@ -6,6 +6,7 @@ import PostAuthor from "../components/PostAuthor";
 import { MdDelete, MdEdit } from "react-icons/md";
 import { toast } from "react-toastify";
 import { IoIosAlert } from "react-icons/io";
+import PostDate from "../components/PostDate";
 
 
 const Post = () => {
@@ -56,11 +57,20 @@ const Post = () => {
    return (
       <section className="container">
          <div className="d-flex align-items-center">
-            <h2 className="flex-grow-1">
-               {
-                  post.title
-               }
-            </h2>
+            <div className="d-flex gap-4 align-items-center">
+               <h2 className="flex-grow-1">
+                  {
+                     post.title
+                  }
+               </h2>
+               <div className="d-flex gap-3" >
+                  <PostAuthor userId={post.user} />
+                  <span className="text-secondary">
+                     &#x2022;
+                  </span>
+                  <PostDate timeStampISO={post.date} />
+               </div>
+            </div>
             <div className="flex-grow-1">
                <div className="d-flex gap-2 justify-content-end" >
                   <Link to={`/edit-post/${postId}`} className="btn btn-outline-primary" >
@@ -86,7 +96,7 @@ const Post = () => {
                </div>
             </div>
          </div>
-         <PostAuthor userId={post.user} />
+
          <hr />
          <p>
             {

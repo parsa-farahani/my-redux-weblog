@@ -1,7 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { getUsersServer } from "../services/usersServices";
-import { getPostsServer } from "../services/postsServices";
-import usersReducer, { loadUsers } from '../features/users/usersSlice';
+import usersReducer from '../features/users/usersSlice';
 import postsReducer from '../features/posts/postsSlice';
 
 

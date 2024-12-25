@@ -46,6 +46,7 @@ const AddPost = () => {
             await dispatch(
                addPostThunk({
                   id: nanoid(),
+                  date: new Date().toISOString(),
                   title,
                   content,
                   user: userId,

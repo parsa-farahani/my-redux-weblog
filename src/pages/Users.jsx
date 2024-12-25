@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { addUser, addUserThunk, deleteUserThunk, fetchUsersThunk, selectAllUsers } from "../features/users/usersSlice";
+import { addUserThunk, deleteUserThunk, fetchUsersThunk, selectAllUsers } from "../features/users/usersSlice";
 import { Link } from "react-router-dom";
 import { MdDelete, MdRefresh } from "react-icons/md";
 import { IoIosAlert } from "react-icons/io";

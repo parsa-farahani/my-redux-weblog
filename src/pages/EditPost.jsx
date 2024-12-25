@@ -48,6 +48,7 @@ const EditPost = () => {
             await dispatch(
                editPostThunk({
                   id: postId,
+                  date: post.date,
                   title,
                   content,
                   user: post.user,
