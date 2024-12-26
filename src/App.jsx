@@ -21,6 +21,7 @@ const App = () => {
       let ignore = false
 
       const fetchPosts = async () => {
+         setIsLoadingPosts(true);
          try {
             await dispatch(
                fetchPostsThunk()
@@ -28,6 +29,8 @@ const App = () => {
          } catch (error) {
             toast.error("Error fetch Posts: " + error.message);
             console.warn(error);
+         } finally {
+            setIsLoadingPosts(true);
          }
       }
 
