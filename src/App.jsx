@@ -30,7 +30,7 @@ const App = () => {
             toast.error("Error fetch Posts: " + error.message);
             console.warn(error);
          } finally {
-            setIsLoadingPosts(true);
+            setIsLoadingPosts(false);
          }
       }
 
