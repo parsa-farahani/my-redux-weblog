@@ -1,7 +1,7 @@
 import { useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
 import { selectUserById } from "../features/users/usersSlice";
-import { selectUserPosts } from "../features/posts/postsSlice";
+// import { selectUserPosts } from "../features/posts/postsSlice";
 
 
 
@@ -12,7 +12,7 @@ const User = () => {
 
    // Redux
    const user = useSelector(state => selectUserById(state, userId));
-   const userPosts = useSelector(state => selectUserPosts(state, userId));
+   // const userPosts = useSelector(state => selectUserPosts(state, userId));
 
    if (!user) {
       return (
@@ -36,7 +36,7 @@ const User = () => {
             <h3 className="h5">
                Posts
             </h3>
-            <div>
+            {/* <div>
                {
                   (userPosts && userPosts.length > 0) ? (
                      <ul>
@@ -58,7 +58,7 @@ const User = () => {
                      </p>
                   )
                }
-            </div>
+            </div> */}
          </div>
       </section>
    );

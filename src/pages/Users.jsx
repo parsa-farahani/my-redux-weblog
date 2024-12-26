@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import { useState } from "react";
 import { nanoid } from "@reduxjs/toolkit";
 import { FaCheck } from "react-icons/fa";
+import { useGetUsersQuery } from "../api/apiSlice";
 
 const Users = () => {
 
@@ -15,17 +16,22 @@ const Users = () => {
    const [ addUserStatus, setAddUserStatus ] = useState("idle");
    const [ deleteUserStatus, setDeleteUserStatus ] = useState("idle");
    
-   // Redux
-   const users = useSelector(selectAllUsers);
-   const dispatch = useDispatch();
+   // RTK-Query
+   const {
+      data: users = [],
+      isLoading: isLoadingUsers,
+      isSuccess: isSuccessUsers,
+      isError: isErrorUsers,
+      error: usersError,
+      refetch,
+   } = useGetUsersQuery();
+
 
    // callbacks
    const handleFetchUsers = async () => {
 
       try {
-         await dispatch(
-            fetchUsersThunk()
-         );
+         await refetch().unwrap();
       } catch (error) {
          toast.error("Error fetch Users: " + error.message);
          console.warn(error);
@@ -36,7 +42,8 @@ const Users = () => {
       setNewUser(e.target.value);
    }
 
-   const canSaveNewUser = newUser;
+
+   const canSaveNewUser = Boolean(newUser) && !isLoadingUsers;
 
    const handleSubmitNewUser = async (e) => {
       e.preventDefault();

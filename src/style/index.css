@@ -162,6 +162,11 @@ section {
    &:focus {
       background-color: transparent ;
    }
+
+   &:disabled {
+      background-color: #111;
+      opacity: .5;
+   }
 }
 
 .form-select option {

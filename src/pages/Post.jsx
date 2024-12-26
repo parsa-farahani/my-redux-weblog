@@ -1,42 +1,60 @@
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { deletePostThunk, selectPostById, selectPostsDeleteStatus, selectPostsError } from "../features/posts/postsSlice";
+// import { deletePostThunk, selectPostById, selectPostsDeleteStatus, selectPostsError } from "../features/posts/postsSlice";
 import { selectUserById } from "../features/users/usersSlice";
 import PostAuthor from "../components/PostAuthor";
-import { MdDelete, MdEdit } from "react-icons/md";
+import { MdDelete, MdEdit, MdError } from "react-icons/md";
 import { toast } from "react-toastify";
 import { IoIosAlert } from "react-icons/io";
 import PostDate from "../components/PostDate";
+import { useDeletePostMutation, useGetPostQuery } from "../api/apiSlice";
+import { useState } from "react";
 
 
 const Post = () => {
+
+   // states
+   const [deletePostStatus, setDeletePostStatus] = useState("idle");
 
    // rrd
    const navigate = useNavigate();
    const { postId } = useParams();
 
-   // Redux
-   const dispatch = useDispatch();
-   const postDeleteStatus = useSelector(selectPostsDeleteStatus);
-   const postError = useSelector(selectPostsError);
-   const post = useSelector(state => selectPostById(state, postId));
+   // RTK-Query
+   const {
+      data: post,
+      isFetching: isLoadingPost,
+      isSuccess: isSuccessPost,
+      isError: isErrorPost,
+      error: postError,
+   } = useGetPostQuery(postId);
+
+   const [
+      deletePostAPI,
+      {
+         isLoading: isLoadingDeletePost,
+         isError: isErrorDeletePost,
+         error: deletePostError,
+      }
+   ] = useDeletePostMutation();
    
 
    // callbacks
    const handleDeletePost = async () => {
+      setDeletePostStatus("pending");
       try {
-         await dispatch(
-            deletePostThunk(postId)
-         )
+         await deletePostAPI(postId).unwrap();
          navigate("/");
       } catch (error) {
          toast.error(error.message);
          console.warn(error.message);
+      } finally {
+         setDeletePostStatus("idle");
       }
    }
 
 
-   if (!post) {
+   if (!isLoadingPost && !post) {
       return (
          <div className="container p-4">
             <div className="alert alert-secondary">
@@ -52,10 +70,13 @@ const Post = () => {
          </div>
       )
    }
-   
 
-   return (
-      <section className="container">
+
+   let postContent;
+
+   if (isSuccessPost) {
+      postContent = (
+         <>
          <div className="d-flex align-items-center">
             <div className="d-flex gap-4 align-items-center">
                <h2 className="flex-grow-1">
@@ -81,9 +102,9 @@ const Post = () => {
                         <MdEdit />
                      </span>
                   </Link>
-                  <button onClick={handleDeletePost} type="button" disabled={postDeleteStatus === 'pending'} className="btn btn-outline-danger" >
+                  <button onClick={handleDeletePost} type="button" disabled={deletePostStatus === 'pending'} className="btn btn-outline-danger" >
                      {
-                        (postDeleteStatus === 'pending') ? (
+                        (deletePostStatus === 'pending') ? (
                            "Deleting..."
                         ) : (
                            ""
@@ -96,13 +117,46 @@ const Post = () => {
                </div>
             </div>
          </div>
-
          <hr />
          <p>
             {
                post.content
             }
          </p>
+         </>
+      );
+   } else if (isLoadingPost) {
+      postContent = <p>Loading post...</p>;
+   } else if (isErrorPost) {
+      let postErrorMessage;
+      if (postError.status === 404) {
+         postErrorMessage = "Eror Fetching Post! - Not Found";
+      } else {
+         postErrorMessage = "Eror Fetching Post!";
+      }
+
+      postContent = (
+         <p className="text-danger">
+            <span className="icon me-2" style={{ verticalAlign: "bottom" }}>
+               <MdError />
+            </span>
+            <span>
+               {
+                  postErrorMessage
+               }
+            </span>
+            {" | "}
+            <span>Please try again</span>
+         </p>
+      )
+   }
+   
+
+   return (
+      <section className="container">
+         {
+            postContent
+         }
       </section>
    );
 }

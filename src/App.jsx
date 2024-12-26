@@ -4,7 +4,7 @@ import { Outlet } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUsersThunk } from "./features/users/usersSlice";
 import { toast } from "react-toastify";
-import { selectPostsFetchStatus } from "./features/posts/postsSlice";
+// import { selectPostsFetchStatus } from "./features/posts/postsSlice";
 
 const App = () => {
 
@@ -13,7 +13,7 @@ const App = () => {
    const [isLoadingUsers, setIsLoadingUsers] = useState(false);
 
    // Redux
-   const postsFetchStatus = useSelector(selectPostsFetchStatus);
+   // const postsFetchStatus = useSelector(selectPostsFetchStatus);
    const dispatch = useDispatch();
 
    // fetch posts
@@ -46,15 +46,15 @@ const App = () => {
       let ignore = false
 
       const fetchUsers = async () => {
-         setIsLoadingUsers(true);
-         try {
-            await dispatch(fetchUsersThunk());
-         } catch (error) {
-            toast.error("Failed to fetch users: " + error.message);
-            console.warn(error);
-         } finally {
-            setIsLoadingUsers(false);
-         }
+         // setIsLoadingUsers(true);
+         // try {
+         //    await dispatch(fetchUsersThunk());
+         // } catch (error) {
+         //    toast.error("Failed to fetch users: " + error.message);
+         //    console.warn(error);
+         // } finally {
+         //    setIsLoadingUsers(false);
+         // }
       };
 
       if (!ignore) {

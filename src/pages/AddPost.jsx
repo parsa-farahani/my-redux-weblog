@@ -3,10 +3,11 @@ import { TiArrowSortedDown } from "react-icons/ti";
 import { useDispatch, useSelector } from "react-redux";
 import { selectAllUsers } from "../features/users/usersSlice";
 import { useState } from "react";
-import { addPostThunk, selectPostsAddStatus } from "../features/posts/postsSlice";
+// import { addPostThunk, selectPostsAddStatus } from "../features/posts/postsSlice";
 import { nanoid } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { useAddNewPostMutation, useGetUsersQuery } from "../api/apiSlice";
 
 const AddPost = () => {
 
@@ -18,10 +19,25 @@ const AddPost = () => {
    // rrd
    const navigate = useNavigate();
 
-   // Redux
-   const users = useSelector(selectAllUsers);
-   const addPostStatus = useSelector(selectPostsAddStatus);
-   const dispatch = useDispatch();
+   // RTK-Query
+   const [
+      addPostApi,
+      {
+         isLoading: isLoadingAddPost,
+         isSuccess: usSuccessAddPost,
+         isError: isErrorAddPost,
+         error: addPostError,
+      }
+   ] = useAddNewPostMutation();
+
+   const {
+      data: users = [],
+      isLoading: isLoadingUsers,
+      isSuccess: isSuccessUsers,
+      isError: isErrorUsers,
+      error: usersError,
+   } = useGetUsersQuery();
+
 
    // callbacks
    const handleTitleChange = (e) => {
@@ -37,21 +53,21 @@ const AddPost = () => {
    }
 
 
-   const canSave = title && content && userId;
+   const canSave = title && content && userId && !isLoadingUsers && !isLoadingAddPost;
 
    const handleSubmit = async (e) => {
       e.preventDefault();
       if (canSave) {
          try {
-            await dispatch(
-               addPostThunk({
+            await addPostApi(
+               {
                   id: nanoid(),
                   date: new Date().toISOString(),
                   title,
                   content,
                   user: userId,
-               })
-            );
+               }
+            ).unwrap();
             navigate("/");
          } catch (error) {
             toast.error(error.message);
@@ -91,10 +107,17 @@ const AddPost = () => {
                   name="post-author"
                   value={userId}
                   onChange={handleUserIdChange}
+                  disabled={isLoadingUsers}
                   className="form-select"
                >
                   <option value="">
-                     Select the Author
+                     {
+                        (isLoadingUsers) ? (
+                           "Loading..."
+                        ) : (
+                           "Select the Author"  
+                        )
+                     }
                   </option>
                   {
                      users.map(user => (
@@ -123,13 +146,13 @@ const AddPost = () => {
                />
             </div>
             <div className="mt-5">
-               <button type="submit" disabled={!canSave || addPostStatus === 'pending'} className="btn btn-primary">
+               <button type="submit" disabled={!canSave || isLoadingAddPost} className="btn btn-primary">
                   <span className="icon me-2">
                      <FaCheck />
                   </span>
                   <span>
                      {
-                        (addPostStatus === 'pending') ? (
+                        (isLoadingAddPost) ? (
                            "Saving..."
                         ) : (
                            "Save the Post"

@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
-import { editPostThunk, selectPostById, selectPostsEditStatus } from "../features/posts/postsSlice";
+// import { editPostThunk, selectPostById, selectPostsEditStatus } from "../features/posts/postsSlice";
 import { toast } from "react-toastify";
 import { FaCheck } from "react-icons/fa";
+import { useGetPostQuery } from "../api/apiSlice";
 
 const EditPost = () => {
 
@@ -12,9 +13,18 @@ const EditPost = () => {
    const navigate = useNavigate();
 
    // Redux
-   const post = useSelector(state => selectPostById(state, postId));
-   const editPostStatus = useSelector(selectPostsEditStatus);
-   const dispatch = useDispatch();
+   // const post = useSelector(state => selectPostById(state, postId));
+   // const editPostStatus = useSelector(selectPostsEditStatus);
+   // const dispatch = useDispatch();
+
+
+   // RTK-Query
+   const {
+      data: post,
+      isSuccess,
+      isError,
+      error,
+   } = useGetPostQuery(postId);
 
    
    // states
@@ -45,15 +55,15 @@ const EditPost = () => {
       e.preventDefault();
       if (canSave) {
          try {
-            await dispatch(
-               editPostThunk({
-                  id: postId,
-                  date: post.date,
-                  title,
-                  content,
-                  user: post.user,
-               })
-            );
+            // await dispatch(
+            //    editPostThunk({
+            //       id: postId,
+            //       date: post.date,
+            //       title,
+            //       content,
+            //       user: post.user,
+            //    })
+            // );
             navigate(`/posts/${postId}`);
          } catch (error) {
             toast.error(error.message);
@@ -100,7 +110,7 @@ const EditPost = () => {
                />
             </div>
             <div className="mt-5">
-               <button type="submit" disabled={!canSave || editPostStatus === 'pending'} className="btn btn-primary">
+               {/* <button type="submit" disabled={!canSave || editPostStatus === 'pending'} className="btn btn-primary">
                   <span className="icon me-2">
                      <FaCheck />
                   </span>
@@ -113,7 +123,7 @@ const EditPost = () => {
                         )
                      }
                   </span>
-               </button>
+               </button> */}
             </div>
          </form>
       </section>

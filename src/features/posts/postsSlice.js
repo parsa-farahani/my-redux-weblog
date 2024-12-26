@@ -110,11 +110,11 @@ const postsSlice = createSlice({
 //    selectById: selectPostById,
 // } = postsAdapter.getSelectors( state => state.posts );
 // + Normal Selectors
-export const selectPostsFetchStatus = (state) => state.posts.status.fetchPosts;
-export const selectPostsAddStatus = (state) => state.posts.status.addPost;
-export const selectPostsDeleteStatus = (state) => state.posts.status.deletePost;
-export const selectPostsEditStatus = (state) => state.posts.status.editPost;
-export const selectPostsError = (state) => state.posts.error;
+// export const selectPostsFetchStatus = (state) => state.posts.status.fetchPosts;
+// export const selectPostsAddStatus = (state) => state.posts.status.addPost;
+// export const selectPostsDeleteStatus = (state) => state.posts.status.deletePost;
+// export const selectPostsEditStatus = (state) => state.posts.status.editPost;
+// export const selectPostsError = (state) => state.posts.error;
 // + Memoized Selectors
 // export const selectUserPosts = createSelector(  // args: state, userId
 //    selectAllPosts,
