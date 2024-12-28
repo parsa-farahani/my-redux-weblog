@@ -1,22 +1,55 @@
 import { useSelector } from "react-redux";
 import { selectUserById } from "../features/users/usersSlice";
+import { useGetUserQuery } from "../api/apiSlice";
 
 const PostAuthor = ( { userId, ...restProps } ) => {
 
-   // Redux
-   const user = useSelector(state => selectUserById(state, userId));
+   // RTK-Query
+   const {
+      data: user,
+      isLoading: isLoadingUser,
+      isSuccess: isSuccessUser,
+      isError: isErrorUser,
+      error: userError,
+   } = useGetUserQuery(userId);
 
+
+
+
+   // Rendering content
+   if ((!user && !isLoadingUser) || isErrorUser) {
+      return (
+         <p className="text-secondary h6 m-0" {...restProps} >
+            By: Unknown Author
+         </p>
+      )
+   }
+
+
+   let authorContent;
+
+   if (isLoadingUser) {
+      authorContent = (
+         <span className="loader" style={{ display: 'inline-block', width: "12px", height: "12px" }}></span>
+      );
+   } else if (isSuccessUser) {
+      authorContent = (
+         <span>
+            {
+               user.fullname
+            }
+         </span>
+      )
+   }
 
    return (
-      <p className="text-secondary h6 m-0" {...restProps} >
-         By: 
-         {" "}
+      <p className="text-secondary h6 m-0 d-flex align-items-center" {...restProps} >
+         <span>
+            By:
+         </span>
+         &nbsp;
          {
-            (user) ? (
-               user.fullname
-            ) : (
-               "Unknown Author"
-            )
+            authorContent
          }
       </p>
    );

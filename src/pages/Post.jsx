@@ -23,7 +23,8 @@ const Post = () => {
    // RTK-Query
    const {
       data: post,
-      isFetching: isLoadingPost,
+      isFetching: isFetchingPost,
+      isLoading: isLoadingPost,
       isSuccess: isSuccessPost,
       isError: isErrorPost,
       error: postError,
@@ -74,7 +75,9 @@ const Post = () => {
 
    let postContent;
 
-   if (isSuccessPost) {
+   if (isLoadingPost || isFetchingPost) {
+      postContent = <p>Loading post...</p>;
+   } else if (isSuccessPost) {
       postContent = (
          <>
          <div className="d-flex align-items-center">
@@ -125,8 +128,6 @@ const Post = () => {
          </p>
          </>
       );
-   } else if (isLoadingPost) {
-      postContent = <p>Loading post...</p>;
    } else if (isErrorPost) {
       let postErrorMessage;
       if (postError.status === 404) {

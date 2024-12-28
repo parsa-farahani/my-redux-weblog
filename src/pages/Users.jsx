@@ -1,34 +1,53 @@
 import { useDispatch, useSelector } from "react-redux";
 import { addUserThunk, deleteUserThunk, fetchUsersThunk, selectAllUsers } from "../features/users/usersSlice";
 import { Link } from "react-router-dom";
-import { MdDelete, MdRefresh } from "react-icons/md";
+import { MdDelete, MdError, MdRefresh } from "react-icons/md";
 import { IoIosAlert } from "react-icons/io";
 import { toast } from "react-toastify";
 import { useState } from "react";
 import { nanoid } from "@reduxjs/toolkit";
 import { FaCheck } from "react-icons/fa";
-import { useGetUsersQuery } from "../api/apiSlice";
+import { useAddNewUserMutation, useDeleteUserMutation, useGetUsersQuery } from "../api/apiSlice";
 
 const Users = () => {
 
    // states
    const [ newUser, setNewUser ] = useState("");
-   const [ addUserStatus, setAddUserStatus ] = useState("idle");
-   const [ deleteUserStatus, setDeleteUserStatus ] = useState("idle");
    
    // RTK-Query
    const {
       data: users = [],
       isLoading: isLoadingUsers,
+      isFetching: isFetchingUsers,
       isSuccess: isSuccessUsers,
       isError: isErrorUsers,
       error: usersError,
       refetch,
    } = useGetUsersQuery();
 
+   const [
+      addUserToApi,
+      {
+         isLoading: isLoadingAddUser,
+         isSuccess: isSuccessAddUser,
+         isError: isErrorAddUser,
+         error: addUserError,
+      },
+   ] = useAddNewUserMutation();
+
+   const [
+      deleteUserToApi,
+      {
+         isLoading: isLoadingDeleteUser,
+         isSuccess: isSuccessDeleteUser,
+         isError: isErrorDeleteUser,
+         error: deleteUserError,
+      },
+   ] = useDeleteUserMutation();
+
 
    // callbacks
-   const handleFetchUsers = async () => {
+   const handleReFetchUsers = async () => {  // re-fetches users, if user click on the corresponding <button>
 
       try {
          await refetch().unwrap();
@@ -38,6 +57,7 @@ const Users = () => {
       }
    }
 
+
    const handleNewUserChange = (e) => {
       setNewUser(e.target.value);
    }
@@ -45,43 +65,123 @@ const Users = () => {
 
    const canSaveNewUser = Boolean(newUser) && !isLoadingUsers;
 
-   const handleSubmitNewUser = async (e) => {
+   const handleSubmitAddUser = async (e) => {
       e.preventDefault();
       if (canSaveNewUser) {
-         setAddUserStatus("pending");
          try {
-            await dispatch(
-               addUserThunk({
-                  id: nanoid(),
-                  fullname: newUser,
-               })
-            );
+            await addUserToApi({
+               id: nanoid(),
+               fullname: newUser,
+            }).unwrap();
             setNewUser("");
          } catch (error) {
             console.warn(error.message);
             toast.error(error.message);  
-         } finally {
-            setAddUserStatus("idle");
          }
       }
    }
 
    const handleDeleteUser = async (userId) => {
-      if (deleteUserStatus === "idle") {
-         setDeleteUserStatus("pending");
+      if (!isLoadingDeleteUser) {
          try {
-            await dispatch(
-               deleteUserThunk(userId)
-            );
+            await deleteUserToApi(userId).unwrap()
          } catch (error) {
             console.warn(error.message);
             toast.error(error.message);  
-         } finally {
-            setDeleteUserStatus("idle");
          }
       }
    }
 
+
+   let usersContent;
+
+   if (isLoadingUsers || isFetchingUsers) {
+      usersContent = (
+         <p className="h6 d-flex align-items-center justify-content-center">
+            <span>
+               Loading Users...
+            </span>
+            {" "}
+            <span className="loader" style={{ width: "30px", height: "30px" }}></span>
+         </p>
+      );
+   } else if (isSuccessUsers) {
+      usersContent = (
+         <ul>
+            {
+               users.map(user => (
+                  <li key={user.id} className="d-flex justify-content-between mb-2">
+                     <Link to={`/users/${user.id}`} >
+                        {
+                           user.fullname
+                        }
+                     </Link>
+                     <button onClick={() => handleDeleteUser(user.id)} type="button" disabled={isLoadingDeleteUser} className="btn btn-sm rounded-circle btn-outline-danger">
+                        <span className="icon">
+                           <MdDelete />
+                        </span>
+                     </button>
+                  </li>
+               ))
+            }
+         </ul>
+      );
+   } else if (isErrorUsers) {
+      let errorMessage;
+
+      if (usersError.status === 404) {
+         errorMessage = "Error Fetching Users - Not Found";
+      } else {
+         errorMessage = "Error Fetching Users";
+      }
+
+      usersContent = (
+         <p className="text-danger">
+            <span className="icon me-2" style={{ verticalAlign: "bottom" }}>
+               <MdError />
+            </span>
+            <span>
+               {
+                  errorMessage
+               }
+            </span>
+            {" | "}
+            <span>Please try again</span>
+         </p>
+      );
+   }
+
+
+   // Rendering Content
+
+   if (!isLoadingUsers && users && users.length <= 0) {
+      return (
+         <section className="container">
+            <div className="alert alert-secondary">
+               <p>
+                  <span className="icon me-2" style={{ verticalAlign: 'bottom' }}>
+                     <IoIosAlert />
+                  </span>
+                  <span className="h5" >
+                     Not Found any User
+                  </span>
+               </p>
+               <button
+                  onClick={handleReFetchUsers}
+                  type="button"
+                  className="btn btn-outline-dark"
+               >
+                  <span>
+                     Try again 
+                  </span>
+                  <span>
+                     <MdRefresh />
+                  </span>
+               </button>
+            </div>
+         </section>
+      )
+   }
 
 
    return (
@@ -93,53 +193,11 @@ const Users = () => {
          <div className="row">
             <div className="col-xs-12 col-md-6">
                {
-                  (users && users.length <= 0) ? (
-                     <div className="alert alert-secondary">
-                        <p>
-                           <span className="icon me-2" style={{ verticalAlign: 'bottom' }}>
-                              <IoIosAlert />
-                           </span>
-                           <span className="h5" >
-                              Not Found any User
-                           </span>
-                        </p>
-                        <button
-                           onClick={handleFetchUsers}
-                           type="button"
-                           className="btn btn-outline-dark"
-                        >
-                           <span>
-                              Try again 
-                           </span>
-                           <span>
-                              <MdRefresh />
-                           </span>
-                        </button>
-                     </div>
-                  ) : (
-                     <ul>
-                        {
-                           users.map(user => (
-                              <li key={user.id} className="d-flex justify-content-between mb-2">
-                                 <Link to={`/users/${user.id}`} >
-                                    {
-                                       user.fullname
-                                    }
-                                 </Link>
-                                 <button onClick={() => handleDeleteUser(user.id)} type="button" disabled={deleteUserStatus === "pending"} className="btn btn-sm rounded-circle btn-outline-danger">
-                                    <span className="icon">
-                                       <MdDelete />
-                                    </span>
-                                 </button>
-                              </li>
-                           ))
-                        }
-                     </ul>
-                  )
+                  usersContent
                }
             </div>
             <div className="col-xs-12 col-md-6">
-               <form onSubmit={handleSubmitNewUser} >
+               <form onSubmit={handleSubmitAddUser} >
                   <div className="mb-3">
                      <label
                         htmlFor="new-user"
@@ -154,18 +212,23 @@ const Users = () => {
                         value={newUser}
                         onChange={handleNewUserChange}
                         spellCheck={false}
+                        disabled={isLoadingUsers || isLoadingAddUser || isLoadingDeleteUser}
                         placeholder="New User..."
                         className="form-control"
                      />
                   </div>
                   <div>
-                     <button type="submit" disabled={!canSaveNewUser || addUserStatus === "pending"} className="btn btn-md btn-primary">
+                     <button 
+                        type="submit"
+                        disabled={!canSaveNewUser || isLoadingUsers || isLoadingAddUser || isLoadingDeleteUser}
+                        className="btn btn-md btn-primary"
+                     >
                         <span className="icon me-2">
                            <FaCheck />
                         </span>
                         <span>
                            {
-                              (addUserStatus === "pending") ? (
+                              (isLoadingAddUser) ? (
                                  "Saving..."
                               ) : (
                                  "Save User"

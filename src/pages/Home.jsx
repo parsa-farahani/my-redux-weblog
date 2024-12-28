@@ -65,7 +65,9 @@ const Home = () => {
 
    let postsContent;
 
-   if (isSuccessPosts) {
+   if (isLoadingPosts) {
+      postsContent = <p>Loading posts...</p>;
+   } else if (isSuccessPosts) {
       postsContent = (
          <div className="posts-list">
             {
@@ -75,8 +77,6 @@ const Home = () => {
             }
          </div>
       );
-   } else if (isLoadingPosts) {
-      postsContent = <p>Loading posts...</p>;
    } else if (isErrorPosts) {
       let errorMessage;
       if (postsError.status === 404) {
