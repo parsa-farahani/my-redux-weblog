@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import MainLayout from "./layouts/MainLayout";
 import { Outlet } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchUsersThunk } from "./features/users/usersSlice";
 import { toast } from "react-toastify";
 // import { selectPostsFetchStatus } from "./features/posts/postsSlice";
 

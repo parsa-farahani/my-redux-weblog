@@ -1,58 +1,115 @@
-import { createAsyncThunk, createEntityAdapter, createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from "@reduxjs/toolkit";
 import { addUserServer, deleteUserServer, getUserServer, getUsersServer } from "../../services/usersServices";
+import apiSlice from "../../api/apiSlice";
+
+export const extendedApiSlice = apiSlice.injectEndpoints({
+   endpoints: (builder) => ({
+      getUsers: builder.query({
+         query: () => '/users',
+         providesTags: ["USER"],
+      }),
+      getUser: builder.query({
+         query: (userId) => `/users/${userId}`,
+         providesTags: (result, error, arg) => [
+            { type: "USER", id: arg },
+         ],
+      }),
+      addNewUser: builder.mutation({
+         query: (user) => ({
+            url: '/users',
+            method: 'POST',
+            body: user,
+         }),
+         invalidatesTags: ["USER"],
+      }),
+      deleteUser: builder.mutation({
+         query: (userId) => ({
+            url: `/users/${userId}`,
+            method: 'DELETE',
+         }),
+         invalidatesTags: ["USER"],
+      }),
+   })
+})
 
 
-const usersAdapter = createEntityAdapter();  // it hasn't any 'sort-comparer'
+// const usersAdapter = createEntityAdapter();  // it hasn't any 'sort-comparer'
 
-const initialState = usersAdapter.getInitialState();
+// const initialState = usersAdapter.getInitialState();
 // { ids: [userId, ...], entities: { userId: user } }
 
 
 
 const usersSlice = createSlice({
    name: "users",
-   initialState,
+   initialState: {
+      status: {
+         fetchUsers: "idle",
+      },
+      error: null,
+   },
    reducers: {},
    extraReducers: (builder) => {
       builder
-      .addCase( fetchUsersThunk.fulfilled, usersAdapter.setAll)  // usersAdapter.setAll(state, action.payload);
-      .addCase( addUserThunk.fulfilled, usersAdapter.addOne)   // usersAdapter.addOne(state, action.payload);
-      .addCase( deleteUserThunk.fulfilled, usersAdapter.removeOne)  // usersAdapter.removeOne(state, action.payload);
+      .addMatcher(
+         extendedApiSlice.endpoints.getUsers.matchPending,
+         (state, action) => {
+            state.status.fetchUsers = "pending";
+         }
+      )
+      .addMatcher(
+         extendedApiSlice.endpoints.getUsers.matchFulfilled,
+         (state, action) => {
+            state.status.fetchUsers = "completed";
+         }
+      )
+      .addMatcher(
+         extendedApiSlice.endpoints.getUsers.matchRejected,
+         (state, action) => {
+            state.status.fetchUsers = "failed";
+            state.error = action.error;
+         }
+      )
    }
 });
 
 
-// Thunks
-// + fetch
-export const fetchUsersThunk = createAsyncThunk( "users/fetchUsers", async () => {
-   const response = await getUsersServer();
-   return response.data;
-} );
-
-
-// + add
-export const addUserThunk = createAsyncThunk( "users/adduser", async (user) => {
-   const response = await addUserServer(user);
-   return response.data;
-} );
-
-
-// + delete
-export const deleteUserThunk = createAsyncThunk( "users/deleteUser", async (userId) => {
-   await deleteUserServer(userId);
-   return userId;
-} );
-
 
 
 // Selectors
-export const {
-   selectAll: selectAllUsers,
-   selectById: selectUserById,
-} = usersAdapter.getSelectors( state => state.users );
+const selectUsersResult = extendedApiSlice.endpoints.getUsers.select();  // users-data is inside '.data' field
+
+export const selectAllUsers = createSelector(
+   selectUsersResult,
+   (usersResult) => usersResult.data
+);
+
+export const selectUserById = createSelector(  // args: state, userId
+   selectAllUsers,
+   (state, userId) => userId,
+   (allUsers, userId) => allUsers.find(user => user.id === userId)
+);
+
+export const selectUsersError = state => state.users.error;
+
+export const selectUsersStatus = state => state.users.status;
+
+
+// export const {
+//    selectAll: selectAllUsers,
+//    selectById: selectUserById,
+// } = usersAdapter.getSelectors( state => state.users );
 
 
 // Action-Creators
 
+
+// apiSlice Hooks
+export const {
+   useGetUsersQuery,
+   useGetUserQuery,
+   useAddNewUserMutation,
+   useDeleteUserMutation,
+} = extendedApiSlice;
 
 export default usersSlice.reducer;

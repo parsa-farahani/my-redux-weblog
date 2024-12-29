@@ -1,11 +1,11 @@
 import { useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
-import { selectUserById } from "../features/users/usersSlice";
-import { useGetPostsQuery, useGetUserQuery } from "../api/apiSlice";
+import { useGetPostsQuery } from "../api/apiSlice";
+import { useGetUserQuery } from "../features/users/usersSlice";
 import { MdError } from "react-icons/md";
 import { useMemo } from "react";
 import { createSelector } from "@reduxjs/toolkit";
-// import { selectUserPosts } from "../features/posts/postsSlice";
+import { toast } from "react-toastify";
 
 
 
@@ -22,9 +22,9 @@ const User = () => {
       isSuccess: isSuccessUser,
       isError: isErrorUser,
       error: userError,
+      refetch: refetchUser
    } = useGetUserQuery(userId);
 
-   console.log(userId, user);
 
 
    const selectUserPosts = useMemo(() => {
@@ -33,7 +33,7 @@ const User = () => {
          (res, userId) => userId,
          (allPosts, userId) => allPosts?.filter(post => post.user === userId) ?? []
       )
-   }, [])
+   }, []);
 
    const { userPosts } = useGetPostsQuery(undefined, {
       selectFromResult: (result) => ({
@@ -43,55 +43,83 @@ const User = () => {
    })
 
 
+   // callbacks
+   const handleRefetchUser = async () => {
+      try {
+         await refetchUser().unwrap()
+      } catch (error) {
+         toast.error("Error Fetch User - Status: " + error?.status);
+         console.warn(error);
+      }
+   }
 
-   if (!user && !isLoadingUser) {
+
+
+   if (!user && !isLoadingUser && !isFetchingUser) {
       return (
-         <div className="container">
+         <section className="container">
             <p>
-               Not Found the User
+               Not Found the User - Try again
             </p>
-         </div>
+            <button onClick={handleRefetchUser} type="button" className="btn btn-outline-light">
+               Try again
+            </button>
+         </section>
       )
    }
 
 
-   let userPostsContent;
+   let userContent;
 
    if (isLoadingUser || isFetchingUser) {
-      userPostsContent = (
+      userContent = (
          <p className="h4 d-flex align-items-center justify-content-center">
             <span>
                Loading User...
             </span>
             {" "}
-            <span className="loader" style={{ width: "40px", height: "40px" }}></span>
+            <span className="loader" style={{ width: "20px", height: "20px" }}></span>
          </p>
       );
 
    } else if (isSuccessUser) {
-      userPostsContent = (
+      userContent = (
          <>
-            {
-               (userPosts && userPosts.length > 0) ? (
-                  <ul>
-                     {
-                        userPosts.map(post => (
-                           <li key={post.id}>
-                              <Link to={`/posts/${post.id}`} >
-                                 {
-                                    post.title
-                                 }
-                              </Link>
-                           </li>
-                        ))
-                     }
-                  </ul>
-               ) : (
-                  <p>
-                     This user hasn not any post yet!
-                  </p>
-               )
-            }
+         
+            <h2>
+               {
+                  user && user.fullname
+               }
+            </h2>
+            <hr />
+            <div>
+               <h3 className="h5">
+                  Posts
+               </h3>
+               <div>
+                  {
+                     (userPosts && userPosts.length > 0) ? (
+                        <ul>
+                           {
+                              userPosts.map(post => (
+                                 <li key={post.id}>
+                                    <Link to={`/posts/${post.id}`} >
+                                       {
+                                          post.title
+                                       }
+                                    </Link>
+                                 </li>
+                              ))
+                           }
+                        </ul>
+                     ) : (
+                        <p>
+                           This user hasn not any post yet!
+                        </p>
+                     )
+                  }
+               </div>
+            </div>
          </>
       );
    } else if (isErrorUser) {
@@ -102,7 +130,7 @@ const User = () => {
          errorMessage = 'Error Fetching User';
       }
 
-      userPostsContent = (
+      userContent = (
          <p className="text-danger">
             <span className="icon me-2" style={{ verticalAlign: "bottom" }}>
                <MdError />
@@ -120,22 +148,9 @@ const User = () => {
 
    return (
       <section className="container">
-         <h2>
-            {
-               user.fullname
-            }
-         </h2>
-         <hr />
-         <div>
-            <h3 className="h5">
-               Posts
-            </h3>
-            <div>
-               {
-                  userPostsContent
-               }
-            </div>
-         </div>
+         {
+            userContent
+         }
       </section>
    );
 }

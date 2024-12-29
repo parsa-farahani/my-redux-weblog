@@ -1,6 +1,6 @@
 import { useSelector } from "react-redux";
-import { selectUserById } from "../features/users/usersSlice";
-import { useGetUserQuery } from "../api/apiSlice";
+// import { selectUserById } from "../features/users/usersSlice";
+import { useGetUserQuery } from "../features/users/usersSlice";
 
 const PostAuthor = ( { userId, ...restProps } ) => {
 

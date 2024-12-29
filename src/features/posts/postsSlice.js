@@ -1,5 +1,6 @@
 import { createAsyncThunk, createEntityAdapter, createSelector, createSlice, nanoid } from "@reduxjs/toolkit";
 import { addPostServer, deletePostServer, getPostServer, getPostsServer, updatePostServer } from "../../services/postsServices";
+import apiSlice from "../../api/apiSlice";
 
 // const postsAdapter = createEntityAdapter({
 //    sortComparer: (post1, post2) => post2.date.localeCompare(post1.date),
@@ -20,90 +21,60 @@ import { addPostServer, deletePostServer, getPostServer, getPostsServer, updateP
 
 const postsSlice = createSlice({
    name: "posts",
-   initialState: {},
+   initialState: {
+      status: {
+         fetchPosts: "idle",  // handles the status for 'apiSlice.endpoints.getPosts.initiate()'
+         error: null,
+      }
+   },
    reducers: {},
    extraReducers: (builder) => {
-      // builder
-      // .addCase( fetchPostsThunk.fulfilled, (state, action) => {
-      //    postsAdapter.upsertMany(state, action.payload);   // initializes the 'Adapter' with fetched-data
-      //    state.status.fetchPosts = "completed";
-      // } )
-      // .addCase( addPostThunk.fulfilled, (state, action) => {
-      //    postsAdapter.addOne(state, action.payload);
-      //    state.status.addPost = "completed";
-      // } )
-      // .addCase( editPostThunk.fulfilled, (state, action) => {
-      //    const { id, title, content } = action.payload;
-      //    // const existingPost = state.entities[id];
-      //    // existingPost.title = title;
-      //    // existingPost.content = content;
-      //    postsAdapter.updateOne( state, {
-      //       id: id,
-      //       changes: {
-      //          title,
-      //          content,
-      //       }
-      //    } );
-      //    state.status.editPost = "completed";
-      // } )
-      // .addCase( deletePostThunk.fulfilled, (state, action) => {
-      //    postsAdapter.removeOne(state, action.payload);
-      //    state.status.deletePost = "completed";
-      // } )
-      // .addMatcher(  // handles 'pending' status
-      //    action => {
-      //       return action.type.endsWith('/pending') && ['fetchPosts', 'addPost', 'editPost', 'deletePost'].includes(action.type.split('/')[1]);
-      //    },
-      //    (state, action) => {
-      //       const operation = action.type.split("/")[1];
-      //       state.status[operation] = "pending";
-      //    }
-      // )
-      // .addMatcher(  // handles 'rejected' status -> adds 'action.error.message' to 'state.error'
-      //    action => {
-      //       return action.type.endsWith('/rejected') && ['fetchPosts', 'addPost', 'editPost', 'deletePost'].includes(action.type.split('/')[1]);
-      //    },
-      //    (state, action) => {
-      //       const operation = action.split("/")[1];
-      //       state.status[operation] = "failed";
-      //       state.error = action.error.message;
-      //    }
-      // )
+      builder
+      .addMatcher(
+         apiSlice.endpoints.getPosts.matchPending,
+         (state, action) => {
+            state.status.fetchPosts = "pending";
+         }
+      )
+      .addMatcher(
+         apiSlice.endpoints.getPosts.matchFulfilled,
+         (state, action) => {
+            state.status.fetchPosts = "completed";
+         }
+      )
+      .addMatcher(
+         apiSlice.endpoints.getPosts.matchRejected,
+         (state, action) => {
+            state.status.fetchPosts = "failed";
+            state.error = action.error
+         }
+      )
    },
 });
 
 
-// AsyncThunks (pending/fulfilled/rejected)
-// + fetch
-// export const fetchPostsThunk = createAsyncThunk( "posts/fetchPosts", async () => {
-//    const response = await getPostsServer();
-//    return response.data;
-// } );
-
-
-// // + add
-// export const addPostThunk = createAsyncThunk( "posts/addPost", async (post) => {
-//    const response = await addPostServer(post);
-//    return response.data;
-// } );
-
-
-// // + delete
-// export const deletePostThunk = createAsyncThunk( "posts/deletePost", async (postId) => {
-//    await deletePostServer(postId);
-//    return postId;
-// } );
-
-
-// // + edit
-// export const editPostThunk = createAsyncThunk( "posts/editPost", async (post) => {
-//    const response = await updatePostServer(post, post.id);
-//    return response.data;
-// } )
-
 
 
 // Selectors
+const selectPostsResult = apiSlice.endpoints.getPosts.select();
+
+export const selectAllPosts = createSelector(  // state
+   selectPostsResult,
+   (postsResult) => postsResult.data ?? []
+);
+
+export const selectPostById = createSelector(  // state, postId
+   selectAllPosts,
+   (state, postId) => postId,
+   (allPosts, postId) => allPosts.find(post => post.id === postId)
+);
+
+
+export const selectPostsFetchStatus = (state) => state.posts.status.fetchPosts;
+export const selectPostsError = (state) => state.posts.error;
+
+
+
 // + Entity-Adapter Selectors
 // export const {
 //    selectAll: selectAllPosts,

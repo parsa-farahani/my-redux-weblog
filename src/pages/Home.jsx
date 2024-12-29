@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import PostDate from "../components/PostDate";
 import apiSlice, { useGetPostsQuery } from "../api/apiSlice";
+import { selectAllPosts, selectPostsError, selectPostsFetchStatus } from "../features/posts/postsSlice";
 
 let Post = ({ post }) => {
    return (
@@ -38,13 +39,19 @@ Post = memo(Post);
 
 const Home = () => {
    // RTK-Query
-   const {
-      data: posts = [],
-      isLoading: isLoadingPosts,
-      isError: isErrorPosts,
-      isSuccess: isSuccessPosts,
-      error: postsError,
-   } = useGetPostsQuery();
+   const posts = useSelector(selectAllPosts);
+   const postsError = useSelector(selectPostsError);
+   const postsStatus = useSelector(selectPostsFetchStatus);
+   let isLoadingPosts = postsStatus === "pending";
+   let isSuccessPosts = postsStatus === "completed";
+   let isErrorPosts = postsStatus === "failed";
+   // const {
+   //    data: posts = [],
+   //    isLoading: isLoadingPosts,
+   //    isError: isErrorPosts,
+   //    isSuccess: isSuccessPosts,
+   //    error: postsError,
+   // } = useGetPostsQuery();
 
 
    const sortedPosts = useMemo(() => {

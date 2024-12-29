@@ -7,7 +7,8 @@ import { useState } from "react";
 import { nanoid } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { useAddNewPostMutation, useGetUsersQuery } from "../api/apiSlice";
+import { useAddNewPostMutation } from "../api/apiSlice";
+import { useGetUsersQuery } from "../features/users/usersSlice";
 
 const AddPost = () => {
 

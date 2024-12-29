@@ -43,31 +43,7 @@ const apiSlice = createApi({
          }),
          invalidatesTags: ["USER_POST"],
       }),
-      getUsers: builder.query({
-         query: () => '/users',
-         providesTags: ["USER"],
-      }),
-      getUser: builder.query({
-         query: (userId) => `/users/${userId}`,
-         providesTags: (result, error, arg) => [
-            { type: "USER", id: arg },
-         ],
-      }),
-      addNewUser: builder.mutation({
-         query: (user) => ({
-            url: '/users',
-            method: 'POST',
-            body: user,
-         }),
-         invalidatesTags: ["USER"],
-      }),
-      deleteUser: builder.mutation({
-         query: (userId) => ({
-            url: `/users/${userId}`,
-            method: 'DELETE',
-         }),
-         invalidatesTags: ["USER"],
-      }),
+      // users-endpoints are injected inside 'usersSlice.js'
    }),
 });
 
@@ -79,10 +55,6 @@ export const {
    useAddNewPostMutation,
    useEditPostMutation,
    useDeletePostMutation,
-   useGetUsersQuery,
-   useGetUserQuery,
-   useAddNewUserMutation,
-   useDeleteUserMutation,
 } = apiSlice;
 
 export default apiSlice;
