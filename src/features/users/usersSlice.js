@@ -33,12 +33,6 @@ export const extendedApiSlice = apiSlice.injectEndpoints({
 })
 
 
-// const usersAdapter = createEntityAdapter();  // it hasn't any 'sort-comparer'
-
-// const initialState = usersAdapter.getInitialState();
-// { ids: [userId, ...], entities: { userId: user } }
-
-
 
 const usersSlice = createSlice({
    name: "users",
@@ -94,14 +88,6 @@ export const selectUsersError = state => state.users.error;
 
 export const selectUsersStatus = state => state.users.status;
 
-
-// export const {
-//    selectAll: selectAllUsers,
-//    selectById: selectUserById,
-// } = usersAdapter.getSelectors( state => state.users );
-
-
-// Action-Creators
 
 
 // apiSlice Hooks

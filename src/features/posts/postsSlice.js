@@ -2,22 +2,6 @@ import { createAsyncThunk, createEntityAdapter, createSelector, createSlice, nan
 import { addPostServer, deletePostServer, getPostServer, getPostsServer, updatePostServer } from "../../services/postsServices";
 import apiSlice from "../../api/apiSlice";
 
-// const postsAdapter = createEntityAdapter({
-//    sortComparer: (post1, post2) => post2.date.localeCompare(post1.date),
-// });
-
-// const initialState = postsAdapter.getInitialState({
-//    status: {
-//       fetchPosts: "idle",
-//       addPost: "idle",
-//       deletePost: "idle",
-//       editPost: "idle",
-//    },
-//    error: null,
-// });
-// { ids: [postId, ...], entities: { postId: post, ... }, status, error }
-
-
 
 const postsSlice = createSlice({
    name: "posts",
@@ -73,27 +57,6 @@ export const selectPostById = createSelector(  // state, postId
 export const selectPostsFetchStatus = (state) => state.posts.status.fetchPosts;
 export const selectPostsError = (state) => state.posts.error;
 
-
-
-// + Entity-Adapter Selectors
-// export const {
-//    selectAll: selectAllPosts,
-//    selectById: selectPostById,
-// } = postsAdapter.getSelectors( state => state.posts );
-// + Normal Selectors
-// export const selectPostsFetchStatus = (state) => state.posts.status.fetchPosts;
-// export const selectPostsAddStatus = (state) => state.posts.status.addPost;
-// export const selectPostsDeleteStatus = (state) => state.posts.status.deletePost;
-// export const selectPostsEditStatus = (state) => state.posts.status.editPost;
-// export const selectPostsError = (state) => state.posts.error;
-// + Memoized Selectors
-// export const selectUserPosts = createSelector(  // args: state, userId
-//    selectAllPosts,
-//    (state, userId) => userId,
-//    (allPosts, userId) => {
-//       return allPosts.filter(post => post.user === userId)
-//    }
-// );
 
 
 
