@@ -1,4 +1,4 @@
-# Fetch Data by RTK-Query (inside apiSlice) + entityAdapter(to keep cached-data normalized)
+# Fetch Data by RTK-Query (inside apiSlice)
 
 -  in this branch, the async operations (users, posts) are handled inside 'apiSlice.js', using 'RTK-Query'
 
