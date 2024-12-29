@@ -1,13 +1,13 @@
 import { FaCheck } from "react-icons/fa";
 import { TiArrowSortedDown } from "react-icons/ti";
 import { useDispatch, useSelector } from "react-redux";
-import { selectAllUsers } from "../features/users/usersSlice";
+import { selectAllUsers, selectUsersStatus } from "../features/users/usersSlice";
 import { useState } from "react";
 // import { addPostThunk, selectPostsAddStatus } from "../features/posts/postsSlice";
 import { nanoid } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { useAddNewPostMutation } from "../api/apiSlice";
+import { useAddNewPostMutation } from "../features/posts/postsSlice";
 import { useGetUsersQuery } from "../features/users/usersSlice";
 
 const AddPost = () => {
@@ -31,13 +31,9 @@ const AddPost = () => {
       }
    ] = useAddNewPostMutation();
 
-   const {
-      data: users = [],
-      isLoading: isLoadingUsers,
-      isSuccess: isSuccessUsers,
-      isError: isErrorUsers,
-      error: usersError,
-   } = useGetUsersQuery();
+   const users = useSelector(selectAllUsers);
+   const usersStatus = useSelector(selectUsersStatus);
+   const isLoadingUsers = usersStatus.fetchUsers === 'pending';
 
 
    // callbacks

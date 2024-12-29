@@ -19,6 +19,10 @@
     {
       "id": "QniJmTZytlsSimIQHEoDm",
       "fullname": "zoro"
+    },
+    {
+      "id": "SN54T3BUww7zGwzPMHbjb",
+      "fullname": "u"
     }
   ],
   "posts": [
@@ -39,9 +43,16 @@
     {
       "id": "P0YpGrA59gwfAG6llmRos",
       "date": "2024-12-28T20:01:15.815Z",
-      "title": "amin Post 10",
+      "title": "amin Post 1",
       "content": "aaaaaa",
       "user": "JYnmEU9qRhdyFtpFKQCeR"
+    },
+    {
+      "id": "Z2qOcyWQsZAKtl4yGpQE8",
+      "date": "2024-12-29T14:50:09.066Z",
+      "title": "a",
+      "content": "aaaa",
+      "user": "SN54T3BUww7zGwzPMHbjb"
     }
   ]
 }

@@ -2,48 +2,89 @@ import { createAsyncThunk, createEntityAdapter, createSelector, createSlice, nan
 import { addPostServer, deletePostServer, getPostServer, getPostsServer, updatePostServer } from "../../services/postsServices";
 import apiSlice from "../../api/apiSlice";
 
-// const postsAdapter = createEntityAdapter({
-//    sortComparer: (post1, post2) => post2.date.localeCompare(post1.date),
-// });
+export const postsAdapter = createEntityAdapter({
+   sortComparer: (post1, post2) => post2.date.localeCompare(post1.date),
+});
 
-// const initialState = postsAdapter.getInitialState({
-//    status: {
-//       fetchPosts: "idle",
-//       addPost: "idle",
-//       deletePost: "idle",
-//       editPost: "idle",
-//    },
-//    error: null,
-// });
+export const initialState = postsAdapter.getInitialState({
+   status: {
+      fetchPosts: "idle",  // handles the status for 'apiSlice.endpoints.getPosts.initiate()'
+      error: null,
+   }
+});
 // { ids: [postId, ...], entities: { postId: post, ... }, status, error }
+
+
+const extendedApiSlice = apiSlice.injectEndpoints({
+   endpoints: (builder) => ({
+      getPosts: builder.query({
+         query: () => "/posts",
+         providesTags: (result = [], error, arg) => {
+            return [
+               "USER_POST",
+               ...result.ids.map(postId => ({type: "USER_POST", id: postId}))
+            ]
+         },
+         transformResponse: (responseData) => {
+            return postsAdapter.setAll( initialState, responseData );
+         }
+      }),
+      getPost: builder.query({
+         query: (postId) => `/posts/${postId}`,
+         providesTags: (result, error, arg) => [
+            { type: "USER_POST", id: arg },
+         ]
+      }),
+      addNewPost: builder.mutation({
+         query: (post) => ({
+            url: '/posts',
+            method: 'POST',
+            body: post,
+         }),
+         invalidatesTags: ["USER_POST"],
+      }),
+      editPost: builder.mutation({
+         query: (post) => ({
+            url: `/posts/${post.id}`,
+            method: 'PUT',
+            body: post,
+         }),
+         invalidatesTags: (result, error, arg) => [
+            { type: "USER_POST", id: arg.id },
+         ]
+      }),
+      deletePost: builder.mutation({
+         query: (postId) => ({
+            url: `/posts/${postId}`,
+            method: 'DELETE',
+         }),
+         invalidatesTags: ["USER_POST"],
+      }),
+   })
+})
 
 
 
 const postsSlice = createSlice({
    name: "posts",
-   initialState: {
-      status: {
-         fetchPosts: "idle",  // handles the status for 'apiSlice.endpoints.getPosts.initiate()'
-         error: null,
-      }
-   },
+   initialState,
    reducers: {},
    extraReducers: (builder) => {
       builder
       .addMatcher(
-         apiSlice.endpoints.getPosts.matchPending,
+         extendedApiSlice.endpoints.getPosts.matchPending,
          (state, action) => {
             state.status.fetchPosts = "pending";
          }
       )
       .addMatcher(
-         apiSlice.endpoints.getPosts.matchFulfilled,
+         extendedApiSlice.endpoints.getPosts.matchFulfilled,
          (state, action) => {
             state.status.fetchPosts = "completed";
          }
       )
       .addMatcher(
-         apiSlice.endpoints.getPosts.matchRejected,
+         extendedApiSlice.endpoints.getPosts.matchRejected,
          (state, action) => {
             state.status.fetchPosts = "failed";
             state.error = action.error
@@ -56,56 +97,51 @@ const postsSlice = createSlice({
 
 
 // Selectors
-const selectPostsResult = apiSlice.endpoints.getPosts.select();
+const selectPostsResult = extendedApiSlice.endpoints.getPosts.select();
 
-export const selectAllPosts = createSelector(  // state
+const selectPostsData = createSelector(
    selectPostsResult,
-   (postsResult) => postsResult.data ?? []
-);
+   (postsResult) => postsResult.data
+)
 
-export const selectPostById = createSelector(  // state, postId
+export const {
+   selectAll: selectAllPosts,
+   selectById: selectPostById,
+} = postsAdapter.getSelectors(state => selectPostsData(state) ?? initialState);
+
+// + Memoized
+export const selectUserPosts = createSelector(  // args: state, userId
    selectAllPosts,
-   (state, postId) => postId,
-   (allPosts, postId) => allPosts.find(post => post.id === postId)
-);
+   (state, userId) => userId,
+   (allPosts, userId) => allPosts.filter(post => post.user === userId)
+)
+
 
 
 export const selectPostsFetchStatus = (state) => state.posts.status.fetchPosts;
 export const selectPostsError = (state) => state.posts.error;
 
 
+// export const selectAllPosts = createSelector(  // state
+//    selectPostsResult,
+//    (postsResult) => postsResult.data ?? []
+// );
 
-// + Entity-Adapter Selectors
-// export const {
-//    selectAll: selectAllPosts,
-//    selectById: selectPostById,
-// } = postsAdapter.getSelectors( state => state.posts );
-// + Normal Selectors
-// export const selectPostsFetchStatus = (state) => state.posts.status.fetchPosts;
-// export const selectPostsAddStatus = (state) => state.posts.status.addPost;
-// export const selectPostsDeleteStatus = (state) => state.posts.status.deletePost;
-// export const selectPostsEditStatus = (state) => state.posts.status.editPost;
-// export const selectPostsError = (state) => state.posts.error;
-// + Memoized Selectors
-// export const selectUserPosts = createSelector(  // args: state, userId
+// export const selectPostById = createSelector(  // state, postId
 //    selectAllPosts,
-//    (state, userId) => userId,
-//    (allPosts, userId) => {
-//       return allPosts.filter(post => post.user === userId)
-//    }
+//    (state, postId) => postId,
+//    (allPosts, postId) => allPosts.find(post => post.id === postId)
 // );
 
 
 
-// Actions
+// apiSlice Hooks
 export const {
-   loadPosts,
-   addPost,
-   deletePost,
-   editPost,
-   updateStatus,
-   addError,
-   clearError,
-} = postsSlice.actions;
+   useGetPostsQuery,
+   useGetPostQuery,
+   useAddNewPostMutation,
+   useEditPostMutation,
+   useDeletePostMutation,
+} = extendedApiSlice;
 
 export default postsSlice.reducer;

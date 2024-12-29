@@ -1,6 +1,7 @@
-# Fetch Data by createAsyncThunk (inside Slice) + entityAdapter(to keep state normalized)
-- in this branch, the async operations (users, posts) are handled inside 'Slices', using 'createAsyncThunk'
+# Fetch Data by RTK-Query (inside apiSlice) + entityAdapter(to keep cached-data normalized)
 
-- Note:  the showing 'visual states' (pending/fulfilled/rejected) is done:
-   + for 'posts', in their 'state.status' logic & extra-reducers -> UI gets the 'status' by Selector
-   + for 'users', in UI by 'states'
+-  in this branch, the async operations (users, posts) are handled inside 'apiSlice.js', using 'RTK-Query'
+
+-  Note: the showing 'visual states' (pending/fulfilled/rejected) is done:
+   -  for 'fetchposts/fetchUsers', in their 'posts/usersSlice' file, using 'matchPending/fulfilled/rejected' & extra-reducers -> UI gets the 'status' by Selector
+   -  for 'other CRUD operations' (POST, PUT, DELETE, and GET one single-data), I used 'useHookQuery/Mutation' of RTK-Query (data, isLoading, isFetching, isScucess, isError, error, reftch, ...)

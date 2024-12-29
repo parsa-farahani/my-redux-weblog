@@ -2,11 +2,27 @@ import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } fr
 import { addUserServer, deleteUserServer, getUserServer, getUsersServer } from "../../services/usersServices";
 import apiSlice from "../../api/apiSlice";
 
+
+
+const usersAdapter = createEntityAdapter();  // it hasn't any 'sort-comparer'
+
+const initialState = usersAdapter.getInitialState({
+   status: {
+      fetchUsers: "idle",
+   },
+   error: null,
+});
+// { ids: [userId, ...], entities: { userId: user } }
+
+
 export const extendedApiSlice = apiSlice.injectEndpoints({
    endpoints: (builder) => ({
       getUsers: builder.query({
          query: () => '/users',
          providesTags: ["USER"],
+         transformResponse: (responseData) => {
+            return usersAdapter.setAll( initialState, responseData )
+         }
       }),
       getUser: builder.query({
          query: (userId) => `/users/${userId}`,
@@ -30,24 +46,13 @@ export const extendedApiSlice = apiSlice.injectEndpoints({
          invalidatesTags: ["USER"],
       }),
    })
-})
-
-
-// const usersAdapter = createEntityAdapter();  // it hasn't any 'sort-comparer'
-
-// const initialState = usersAdapter.getInitialState();
-// { ids: [userId, ...], entities: { userId: user } }
+});
 
 
 
 const usersSlice = createSlice({
    name: "users",
-   initialState: {
-      status: {
-         fetchUsers: "idle",
-      },
-      error: null,
-   },
+   initialState,
    reducers: {},
    extraReducers: (builder) => {
       builder
@@ -79,29 +84,31 @@ const usersSlice = createSlice({
 // Selectors
 const selectUsersResult = extendedApiSlice.endpoints.getUsers.select();  // users-data is inside '.data' field
 
-export const selectAllUsers = createSelector(
+const selectUsersData = createSelector(  // args: state
    selectUsersResult,
    (usersResult) => usersResult.data
-);
+)
 
-export const selectUserById = createSelector(  // args: state, userId
-   selectAllUsers,
-   (state, userId) => userId,
-   (allUsers, userId) => allUsers.find(user => user.id === userId)
-);
+export const {
+   selectAll: selectAllUsers,
+   selectById: selectUserById,
+} = usersAdapter.getSelectors( state => selectUsersData(state) ?? initialState );
+
+// export const selectAllUsers = createSelector(
+//    selectUsersResult,
+//    (usersResult) => usersResult.data
+// );
+
+// export const selectUserById = createSelector(  // args: state, userId
+//    selectAllUsers,
+//    (state, userId) => userId,
+//    (allUsers, userId) => allUsers.find(user => user.id === userId)
+// );
 
 export const selectUsersError = state => state.users.error;
 
 export const selectUsersStatus = state => state.users.status;
 
-
-// export const {
-//    selectAll: selectAllUsers,
-//    selectById: selectUserById,
-// } = usersAdapter.getSelectors( state => state.users );
-
-
-// Action-Creators
 
 
 // apiSlice Hooks

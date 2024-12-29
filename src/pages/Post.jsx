@@ -7,7 +7,7 @@ import { MdDelete, MdEdit, MdError } from "react-icons/md";
 import { toast } from "react-toastify";
 import { IoIosAlert } from "react-icons/io";
 import PostDate from "../components/PostDate";
-import { useDeletePostMutation, useGetPostQuery } from "../api/apiSlice";
+import { useDeletePostMutation, useGetPostQuery } from "../features/posts/postsSlice";
 import { useState } from "react";
 
 

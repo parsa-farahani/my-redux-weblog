@@ -6,9 +6,9 @@ import apiSlice from "../api/apiSlice";
 
 const store = configureStore({
    reducer: {
+      [apiSlice.reducerPath]: apiSlice.reducer,
       users: usersReducer,
       posts: postsReducer,
-      [apiSlice.reducerPath]: apiSlice.reducer
    },
    middleware: (getDefaultMiddlewares) => getDefaultMiddlewares().concat( apiSlice.middleware ),
 });

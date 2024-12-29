@@ -7,7 +7,7 @@ import { MdError } from "react-icons/md";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import PostDate from "../components/PostDate";
-import apiSlice, { useGetPostsQuery } from "../api/apiSlice";
+// import apiSlice, { useGetPostsQuery } from "../api/apiSlice";
 import { selectAllPosts, selectPostsError, selectPostsFetchStatus } from "../features/posts/postsSlice";
 
 let Post = ({ post }) => {

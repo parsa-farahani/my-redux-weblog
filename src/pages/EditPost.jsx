@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 // import { editPostThunk, selectPostById, selectPostsEditStatus } from "../features/posts/postsSlice";
 import { toast } from "react-toastify";
 import { FaCheck } from "react-icons/fa";
-import { useAddNewPostMutation, useEditPostMutation, useGetPostQuery } from "../api/apiSlice";
+import { useEditPostMutation, useGetPostQuery } from "../features/posts/postsSlice";
 
 const EditPost = () => {
 

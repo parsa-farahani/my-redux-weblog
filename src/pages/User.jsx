@@ -1,6 +1,6 @@
 import { useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
-import { useGetPostsQuery } from "../api/apiSlice";
+import { selectUserPosts, useGetPostsQuery } from "../features/posts/postsSlice";
 import { useGetUserQuery } from "../features/users/usersSlice";
 import { MdError } from "react-icons/md";
 import { useMemo } from "react";
@@ -26,21 +26,8 @@ const User = () => {
    } = useGetUserQuery(userId);
 
 
+   const userPosts = useSelector(state => selectUserPosts(state, userId));
 
-   const selectUserPosts = useMemo(() => {
-      return createSelector(  // args:  posts, userId
-         (res) => res.data,
-         (res, userId) => userId,
-         (allPosts, userId) => allPosts?.filter(post => post.user === userId) ?? []
-      )
-   }, []);
-
-   const { userPosts } = useGetPostsQuery(undefined, {
-      selectFromResult: (result) => ({
-         ...result,
-         userPosts: selectUserPosts(result, userId),   // result: Array of all Posts
-      })
-   })
 
 
    // callbacks
