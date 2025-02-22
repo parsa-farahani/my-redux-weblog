@@ -7,50 +7,43 @@ import { MdDelete, MdEdit, MdError } from "react-icons/md";
 import { toast } from "react-toastify";
 import { IoIosAlert } from "react-icons/io";
 import PostDate from "../components/PostDate";
-import { useDeletePostMutation, useGetPostQuery } from "../api/apiSlice";
 import { useState } from "react";
+import { deletePost, selectPostById, selectPostsError, selectPostsStatus } from "../features/posts/postsSlice";
 
 
 const Post = () => {
 
-   // states
-   const [deletePostStatus, setDeletePostStatus] = useState("idle");
 
    // rrd
    const navigate = useNavigate();
    const { postId } = useParams();
 
-   // RTK-Query
-   const {
-      data: post,
-      isFetching: isFetchingPost,
-      isLoading: isLoadingPost,
-      isSuccess: isSuccessPost,
-      isError: isErrorPost,
-      error: postError,
-   } = useGetPostQuery(postId);
 
-   const [
-      deletePostAPI,
-      {
-         isLoading: isLoadingDeletePost,
-         isError: isErrorDeletePost,
-         error: deletePostError,
-      }
-   ] = useDeletePostMutation();
-   
+   // Redux
+   const dispatch = useDispatch();
+   const post = useSelector( state => selectPostById(state, postId) );
+   const postsStatus = useSelector(selectPostsStatus);
+   const postsError = useSelector(selectPostsError);
+
+   const isLoadingPost = postsStatus.fetchPosts === 'loading';
+   const isSuccessPost = postsStatus.fetchPosts === 'completed';
+   const isErrorPost = postsStatus.fetchPosts === 'failed';
+
+   const isLoadingDeletePost = postsStatus.deletePost === 'loading';
+   const isSuccessDeletePost = postsStatus.deletePost === 'completed';
+   const isErrorDeletePost = postsStatus.deletePost === 'failed';
+
 
    // callbacks
    const handleDeletePost = async () => {
-      setDeletePostStatus("pending");
       try {
-         await deletePostAPI(postId).unwrap();
+         await dispatch(
+            deletePost(postId)
+         );
          navigate("/");
       } catch (error) {
          toast.error(error.message);
          console.warn(error.message);
-      } finally {
-         setDeletePostStatus("idle");
       }
    }
 
@@ -75,7 +68,7 @@ const Post = () => {
 
    let postContent;
 
-   if (isLoadingPost || isFetchingPost) {
+   if (isLoadingPost) {
       postContent = <p>Loading post...</p>;
    } else if (isSuccessPost) {
       postContent = (
@@ -105,9 +98,9 @@ const Post = () => {
                         <MdEdit />
                      </span>
                   </Link>
-                  <button onClick={handleDeletePost} type="button" disabled={deletePostStatus === 'pending'} className="btn btn-outline-danger" >
+                  <button onClick={handleDeletePost} type="button" disabled={isLoadingDeletePost} className="btn btn-outline-danger" >
                      {
-                        (deletePostStatus === 'pending') ? (
+                        (isLoadingDeletePost) ? (
                            "Deleting..."
                         ) : (
                            ""
@@ -130,7 +123,7 @@ const Post = () => {
       );
    } else if (isErrorPost) {
       let postErrorMessage;
-      if (postError.status === 404) {
+      if (postsError.status === 404) {
          postErrorMessage = "Eror Fetching Post! - Not Found";
       } else {
          postErrorMessage = "Eror Fetching Post!";

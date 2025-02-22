@@ -41,26 +41,13 @@ let Post = ({ post }) => {
 Post = memo(Post);
 
 const Home = () => {
-   // RTK-Query
-   // const posts = useSelector(selectAllPosts);
-   // const postsError = useSelector(selectPostsError);
-   // const postsStatus = useSelector(selectPostsFetchStatus);
-   // let isLoadingPosts = postsStatus === "pending";
-   // let isSuccessPosts = postsStatus === "completed";
-   // let isErrorPosts = postsStatus === "failed";
-   // const {
-   //    data: posts = [],
-   //    isLoading: isLoadingPosts,
-   //    isError: isErrorPosts,
-   //    isSuccess: isSuccessPosts,
-   //    error: postsError,
-   // } = useGetPostsQuery();
+
 
    const posts = useSelector(selectAllPosts);
    const postsStatus = useSelector(selectPostsStatus);
-   let isSuccessPosts = postsStatus === 'completed';
-   let isLoadingPosts = postsStatus === 'loading';
-   let isErrorPosts = postsStatus === 'failed';
+   let isSuccessPosts = postsStatus.fetchPosts === 'completed';
+   let isLoadingPosts = postsStatus.fetchPosts === 'loading';
+   let isErrorPosts = postsStatus.fetchPosts === 'failed';
 
    let  postsError = null;
 

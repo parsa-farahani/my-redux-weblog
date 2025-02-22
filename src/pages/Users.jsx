@@ -1,64 +1,44 @@
 import { useDispatch, useSelector } from "react-redux";
-import { selectAllUsers, selectUsersError, selectUsersStatus } from "../features/users/usersSlice";
+import { addNewUser, deleteUser, fetchUsers, selectAllUsers, selectUsersError, selectUsersStatus } from "../features/users/usersSlice";
 import { Link } from "react-router-dom";
 import { MdDelete, MdError, MdRefresh } from "react-icons/md";
 import { IoIosAlert } from "react-icons/io";
 import { toast } from "react-toastify";
 import { useState } from "react";
-import { nanoid } from "@reduxjs/toolkit";
 import { FaCheck } from "react-icons/fa";
-import apiSlice, { useAddNewUserMutation, useDeleteUserMutation, useGetUsersQuery } from "../features/users/usersSlice";
+import { nanoid } from "nanoid";
+
 
 const Users = () => {
 
    // states
    const [ newUser, setNewUser ] = useState("");
    
-   // RTK-Query
+   // Redux
    const dispatch = useDispatch();
    const users = useSelector(selectAllUsers);
    const usersError = useSelector(selectUsersError);
    const usersStatus = useSelector(selectUsersStatus);
-   const isLoadingUsers = usersStatus.fetchUsers === "pending";
-   const isSuccessUsers = usersStatus.fetchUsers === "completed";
-   const isErrorUsers = usersStatus.fetchUsers === "failed";
-   // const {
-   //    data: users = [],
-   //    isLoading: isLoadingUsers,
-   //    isFetching: isFetchingUsers,
-   //    isSuccess: isSuccessUsers,
-   //    isError: isErrorUsers,
-   //    error: usersError,
-   //    refetch,
-   // } = useGetUsersQuery();
 
-   const [
-      addUserToApi,
-      {
-         isLoading: isLoadingAddUser,
-         isSuccess: isSuccessAddUser,
-         isError: isErrorAddUser,
-         error: addUserError,
-      },
-   ] = useAddNewUserMutation();
+   const isLoadingUsers = usersStatus.fetch === "loading";
+   const isSuccessUsers = usersStatus.fetch === "completed";
+   const isErrorUsers = usersStatus.fetch === "failed";
 
-   const [
-      deleteUserToApi,
-      {
-         isLoading: isLoadingDeleteUser,
-         isSuccess: isSuccessDeleteUser,
-         isError: isErrorDeleteUser,
-         error: deleteUserError,
-      },
-   ] = useDeleteUserMutation();
+   const isLoadingAddUser = usersStatus.add === "loading";
+   const isSuccessAddUser = usersStatus.add === "completed";
+   const isErrorAddUser = usersStatus.add === "failed";
+
+   const isLoadingDeleteUser = usersStatus.delete === "loading";
+   const isSuccessDeleteUser = usersStatus.delete === "completed";
+   const isErrorDeleteUser = usersStatus.delete === "failed";
+
 
 
    // callbacks
    const handleReFetchUsers = async () => {  // re-fetches users, if user click on the corresponding <button>
 
       try {
-         await dispatch( apiSlice.endpoints.getUsers.initiate() ).unwrap();
-         // await refetch().unwrap();
+         await dispatch( fetchUsers );
       } catch (error) {
          toast.error("Error fetch Users - Status: " + error.status);
          console.warn(error);
@@ -77,10 +57,14 @@ const Users = () => {
       e.preventDefault();
       if (canSaveNewUser) {
          try {
-            await addUserToApi({
-               id: nanoid(),
-               fullname: newUser,
-            }).unwrap();
+            await dispatch(
+               addNewUser(
+                  {
+                     id: nanoid(),
+                     fullname: newUser,
+                  }
+               )
+            );
             setNewUser("");
          } catch (error) {
             console.warn(error?.message);
@@ -92,7 +76,9 @@ const Users = () => {
    const handleDeleteUser = async (userId) => {
       if (!isLoadingDeleteUser) {
          try {
-            await deleteUserToApi(userId).unwrap()
+            await dispatch(
+               deleteUser(userId)
+            )
          } catch (error) {
             console.warn(error?.message);
             toast.error(error?.message);  

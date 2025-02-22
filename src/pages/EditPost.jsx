@@ -1,18 +1,16 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
-// import { editPostThunk, selectPostById, selectPostsEditStatus } from "../features/posts/postsSlice";
+import { editPost, selectPostById, selectPostsError, selectPostsStatus } from "../features/posts/postsSlice";
 import { toast } from "react-toastify";
 import { FaCheck } from "react-icons/fa";
-import { useAddNewPostMutation, useEditPostMutation, useGetPostQuery } from "../api/apiSlice";
+
 
 const EditPost = () => {
-
       
    // states
    const [ title, setTitle ] = useState("");
    const [ content, setContent ] = useState("");
-   const [ userId, setUserId ] = useState(null);
 
 
    // rrd
@@ -20,41 +18,25 @@ const EditPost = () => {
    const navigate = useNavigate();
 
    // Redux
-   // const post = useSelector(state => selectPostById(state, postId));
-   // const editPostStatus = useSelector(selectPostsEditStatus);
-   // const dispatch = useDispatch();
+   const dispatch = useDispatch();
+   const post = useSelector(state => selectPostById(state, postId));
+   const postsError = useSelector(selectPostsError);
+   const postsStatus = useSelector(selectPostsStatus);
+   const isLoadingPost = postsStatus.fetchPosts === 'loading';
+   const isSuccessPost = postsStatus.fetchPosts === 'completed';
+   const isErrorPost = postsStatus.fetchPosts === 'failed';
 
-
-   // RTK-Query
-   const {
-      data: post,
-      isLoading: isLoadingPost,
-      isSuccess: isSuccessPost,
-      isError: isErrorPost,
-      error: postError,
-   } = useGetPostQuery(postId);
-
-   const [
-      editPostToApi,
-      {
-         isLoading: isLoadingEditPost,
-         isSuccess: isSuccessEditPost,
-         isError: isErrorEditPost,
-         error: editPostError,
-      },
-   ] = useEditPostMutation();
-
+   const isLoadingEditPost = postsStatus.editPost === 'loading';
+   const isSuccessEditPost = postsStatus.editPost === 'completed';
+   const isErrorEditPost = postsStatus.editPost === 'failed';
 
 
    useEffect(() => {
       if (isSuccessPost && post) {
          setTitle(post.title);
          setContent(post.content);
-         setUserId(post.user);
       }
    }, [isSuccessPost, post]);
-
-
 
 
 
@@ -67,10 +49,6 @@ const EditPost = () => {
       setContent(e.target.value);
    }
 
-   const handleUserIdChange = (e) => {
-      setUserId(e.target.value);
-   }
-
 
    const canSave = title && content && !isLoadingPost && !isLoadingEditPost;
 
@@ -78,15 +56,17 @@ const EditPost = () => {
       e.preventDefault();
       if (canSave) {
          try {
-            await editPostToApi(
-               {
-                  id: postId,
-                  date: post.date,
-                  title,
-                  content,
-                  user: post.user,
-               }
-            ).unwrap();
+            await dispatch(
+               editPost(
+                  {
+                     id: postId,
+                     date: post.date,
+                     title,
+                     content,
+                     user: post.user,
+                  }
+               )
+            );
             navigate(`/posts/${postId}`);
          } catch (error) {
             toast.error(error.message);

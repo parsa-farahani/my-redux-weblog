@@ -11,22 +11,14 @@
     {
       "id": "JYnmEU9qRhdyFtpFKQCeR",
       "fullname": "Amin Karimi"
-    },
-    {
-      "id": "9Ir1RAF1WuxfOWawuDHMl",
-      "fullname": "onion"
-    },
-    {
-      "id": "QniJmTZytlsSimIQHEoDm",
-      "fullname": "zoro"
     }
   ],
   "posts": [
     {
       "id": "CXtC5hbRLQ4GWGi7ffwdm",
       "date": "2024-12-25T21:07:33.739Z",
-      "title": "my post 10000",
-      "content": "post 1 content",
+      "title": "my post 1",
+      "content": "post 1 parsa",
       "user": "l8oflKgVZInxXzyBAIgr5"
     },
     {
@@ -40,7 +32,7 @@
       "id": "P0YpGrA59gwfAG6llmRos",
       "date": "2024-12-28T20:01:15.815Z",
       "title": "amin Post 100",
-      "content": "aaaaaa",
+      "content": "10000000000000000000000000",
       "user": "JYnmEU9qRhdyFtpFKQCeR"
     }
   ]

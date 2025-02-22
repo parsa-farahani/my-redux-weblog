@@ -1,14 +1,13 @@
 import { FaCheck } from "react-icons/fa";
 import { TiArrowSortedDown } from "react-icons/ti";
 import { useDispatch, useSelector } from "react-redux";
-import { selectAllUsers } from "../features/users/usersSlice";
+import { selectAllUsers, selectUsersError, selectUsersStatus } from "../features/users/usersSlice";
 import { useState } from "react";
-// import { addPostThunk, selectPostsAddStatus } from "../features/posts/postsSlice";
-import { nanoid } from "@reduxjs/toolkit";
+import { nanoid } from "nanoid";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { useAddNewPostMutation } from "../api/apiSlice";
-import { useGetUsersQuery } from "../features/users/usersSlice";
+import { addNewPost, selectPostsError, selectPostsStatus } from "../features/posts/postsSlice";
+
 
 const AddPost = () => {
 
@@ -20,24 +19,22 @@ const AddPost = () => {
    // rrd
    const navigate = useNavigate();
 
-   // RTK-Query
-   const [
-      addPostApi,
-      {
-         isLoading: isLoadingAddPost,
-         isSuccess: usSuccessAddPost,
-         isError: isErrorAddPost,
-         error: addPostError,
-      }
-   ] = useAddNewPostMutation();
+   // Redux
+   const dispatch = useDispatch();
+   const users = useSelector(selectAllUsers) ?? [];
+   const usersError = useSelector(selectUsersError);
+   const usersStatus = useSelector(selectUsersStatus);
+   const isLoadingUsers = usersStatus.fetch === 'loading';
+   const isSuccessUsers = usersStatus.fetch === 'completed';
+   const isErrorUsers = usersStatus.fetch === 'failed';
 
-   const {
-      data: users = [],
-      isLoading: isLoadingUsers,
-      isSuccess: isSuccessUsers,
-      isError: isErrorUsers,
-      error: usersError,
-   } = useGetUsersQuery();
+   const addPostError = useSelector(selectPostsError);
+   const postsStatus = useSelector(selectPostsStatus);
+   const isLoadingAddPost = postsStatus.addPost === 'loading';
+   const isSuccessAddPost = postsStatus.addPost === 'completed';
+   const isErrorAddPost = postsStatus.addPost === 'failed';
+
+
 
 
    // callbacks
@@ -60,15 +57,17 @@ const AddPost = () => {
       e.preventDefault();
       if (canSave) {
          try {
-            await addPostApi(
-               {
-                  id: nanoid(),
-                  date: new Date().toISOString(),
-                  title,
-                  content,
-                  user: userId,
-               }
-            ).unwrap();
+            await dispatch(
+               addNewPost(
+                  {
+                     id: nanoid(),
+                     date: new Date().toISOString(),
+                     title,
+                     content,
+                     user: userId,
+                  }
+               )
+            );
             navigate("/");
          } catch (error) {
             toast.error(error.message);

@@ -1,11 +1,10 @@
-import { useSelector } from "react-redux";
-import { Link, useParams } from "react-router-dom";
-import { useGetPostsQuery } from "../api/apiSlice";
-import { useGetUserQuery } from "../features/users/usersSlice";
-import { MdError } from "react-icons/md";
 import { useMemo } from "react";
-import { createSelector } from "@reduxjs/toolkit";
+import { Link, useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import { fetchUsers, selectUserById, selectUsersError, selectUsersStatus } from "../features/users/usersSlice";
+import { selectUserPosts } from "../features/posts/postsSlice";
+import { MdError } from "react-icons/md";
 
 
 
@@ -14,39 +13,25 @@ const User = () => {
    // rrd
    const { userId } = useParams();
 
-   // RTK-Query
-   const {
-      data: user,
-      isLoading: isLoadingUser,
-      isFetching: isFetchingUser,
-      isSuccess: isSuccessUser,
-      isError: isErrorUser,
-      error: userError,
-      refetch: refetchUser
-   } = useGetUserQuery(userId);
+   // Redux
+   const dispatch = useDispatch();
+   const user = useSelector(state => selectUserById(state, userId));
+   const usersLoadingStatus = useSelector(selectUsersStatus);
+   const isLoadingUser = usersLoadingStatus.fetch === 'loading';
+   const isSuccessUser = usersLoadingStatus.fetch === 'completed';
+   const isErrorUser = usersLoadingStatus.fetch === 'failed';
+   const userError = useSelector(selectUsersError);
 
+   const userPosts = useSelector( state => selectUserPosts(state, userId) );
 
-
-   const selectUserPosts = useMemo(() => {
-      return createSelector(  // args:  posts, userId
-         (res) => res.data,
-         (res, userId) => userId,
-         (allPosts, userId) => allPosts?.filter(post => post.user === userId) ?? []
-      )
-   }, []);
-
-   const { userPosts } = useGetPostsQuery(undefined, {
-      selectFromResult: (result) => ({
-         ...result,
-         userPosts: selectUserPosts(result, userId),   // result: Array of all Posts
-      })
-   })
-
+   
 
    // callbacks
    const handleRefetchUser = async () => {
       try {
-         await refetchUser().unwrap()
+         await dispatch(
+            fetchUsers()
+         )
       } catch (error) {
          toast.error("Error Fetch User - Status: " + error?.status);
          console.warn(error);
@@ -55,7 +40,7 @@ const User = () => {
 
 
 
-   if (!user && !isLoadingUser && !isFetchingUser) {
+   if (!user && !isLoadingUser) {
       return (
          <section className="container">
             <p>
@@ -71,7 +56,7 @@ const User = () => {
 
    let userContent;
 
-   if (isLoadingUser || isFetchingUser) {
+   if (isLoadingUser) {
       userContent = (
          <p className="h4 d-flex align-items-center justify-content-center">
             <span>

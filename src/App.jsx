@@ -1,82 +1,92 @@
-import { useEffect, useState } from 'react'
-import { Route, Routes } from 'react-router-dom';
+import { useEffect, useState } from "react";
+import { Route, Routes } from "react-router-dom";
 // components
-import MainLayout from './layouts/MainLayout';
-import Home from './pages/Home';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchPosts, selectPostsStatus } from './features/posts/postsSlice';
-import NotFound from './pages/NotFound';
+import MainLayout from "./layouts/MainLayout";
+import Home from "./pages/Home";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchPosts, selectPostsStatus } from "./features/posts/postsSlice";
+import NotFound from "./pages/NotFound";
+import { fetchUsers, selectUsersStatus } from "./features/users/usersSlice";
+import Users from "./pages/Users";
+import User from "./pages/User";
+import Post from "./pages/Post";
+import AddPost from "./pages/AddPost";
+import EditPost from "./pages/EditPost";
+
 
 
 function App() {
 
-  // Redux
-  const dispatch = useDispatch();
-  const postsStatus = useSelector(selectPostsStatus);
-  const isLoadingPosts = postsStatus === 'loading';
+   // Redux
+   const dispatch = useDispatch();
+   const postsStatus = useSelector(selectPostsStatus);
+   const isLoadingPosts = postsStatus.fetchPosts === "loading";
+   const isSuccessPosts = postsStatus.fetchPosts === "compelted";
 
-  useEffect(() => {
-
-    if (postsStatus === 'completed') return;
-
-    dispatch(
-      fetchPosts()
-    )
-
-  }, [])
+   const usersStatus = useSelector(selectUsersStatus);
+   const isSuccessUsers = usersStatus.fetch === 'completed';
+   const isLoadingUsers = usersStatus.fetch === 'loading';
 
 
+   useEffect(() => {
+      if (isSuccessUsers) return;
 
-  return (
-    <>
-      <Routes>
-        <Route path="/" element={<MainLayout isLoadingPosts={isLoadingPosts} isLoadingUsers={false} />}>
-          <Route index element={<Home/>} />
-        </Route>
-        <Route path="*" element={<NotFound/>} />
-      </Routes>
-    </>
-  )
+      const fetchUsersFromServer = async () => {
+
+         try {
+            await dispatch(
+               fetchUsers()
+            );
+         } catch (error) {
+            console.error(error);  
+         }
+      }
+
+      fetchUsersFromServer();
+   }, [dispatch, isSuccessUsers]);
+
+
+   useEffect(() => {
+      if (isSuccessPosts) return;
+
+      const fetchUsersFromServer = async () => {
+
+         try {
+            await dispatch(fetchPosts());
+         } catch (error) {
+            console.error(error);
+         }
+      }
+
+      fetchUsersFromServer();
+
+   }, [dispatch, isSuccessPosts]);
+
+
+
+   return (
+      <>
+         <Routes>
+            <Route
+               path="/"
+               element={
+                  <MainLayout
+                     isLoadingPosts={isLoadingPosts}
+                     isLoadingUsers={isLoadingUsers}
+                  />
+               }
+            >
+               <Route index element={<Home />} />
+               <Route path="users" element={<Users />} />
+               <Route path="users/:userId" element={<User />} />
+               <Route path="posts/:postId" element={<Post />} />
+               <Route path="add-post" element={<AddPost />} />
+               <Route path="edit-post/:postId" element={<EditPost />} />
+            </Route>
+            <Route path="*" element={<NotFound />} />
+         </Routes>
+      </>
+   );
 }
 
-export default App
-
-
-// Routing Pattern:
-/*
-{
-      path: "/",
-      element: <App />,
-      errorElement: <h3 className="text-center" >an Erro occured! please try again later</h3>,
-      children: [
-         {
-            path: "/",
-            element: <Home />
-         },
-         {
-            path: "/users",
-            element: <Users />
-         },
-         {
-            path: "/users/:userId",
-            element: <User />
-         },
-         {
-            path: "/add-post",
-            element: <AddPost />
-         },
-         {
-            path: "/posts/:postId",
-            element: <Post />
-         },
-         {
-            path: "/edit-post/:postId",
-            element: <EditPost />
-         },
-      ]
-   },
-   {
-      path: "*",
-      element: <h2 className="text-center" >404 - Not Found the Page</h2>
-   },
-*/
+export default App;
