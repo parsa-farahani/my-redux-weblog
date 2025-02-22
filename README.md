@@ -1,10 +1,16 @@
 # Redux Weblog Project
-================
+
+
 
 ## Overview:  Multiple Redux approaches to handle a 'Weblog' with 'users/posts' data
 -----------
 
 This project is a weblog application that manages user and post data using different approaches to state management with Redux. The repository includes multiple branches, each demonstrating a distinct method for handling asynchronous data fetching and caching.
+
+
+## Screenshots
+![Project Screenshot](./screenshots/sc1.png)
+
 
 
 ## Technologies Used
