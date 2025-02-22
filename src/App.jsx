@@ -5,6 +5,7 @@ import MainLayout from './layouts/MainLayout';
 import Home from './pages/Home';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchPosts, selectPostsStatus } from './features/posts/postsSlice';
+import NotFound from './pages/NotFound';
 
 
 function App() {
@@ -12,6 +13,7 @@ function App() {
   // Redux
   const dispatch = useDispatch();
   const postsStatus = useSelector(selectPostsStatus);
+  const isLoadingPosts = postsStatus === 'loading';
 
   useEffect(() => {
 
@@ -28,9 +30,10 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<MainLayout />}>
+        <Route path="/" element={<MainLayout isLoadingPosts={isLoadingPosts} isLoadingUsers={false} />}>
           <Route index element={<Home/>} />
         </Route>
+        <Route path="*" element={<NotFound/>} />
       </Routes>
     </>
   )

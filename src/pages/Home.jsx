@@ -6,6 +6,8 @@ import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import PostDate from "../components/PostDate";
 import { selectAllPosts, selectPostsStatus } from "../features/posts/postsSlice";
+import LoadingData from "../components/LoadingData";
+import Spinner from "../components/Spinner";
 // import { selectAllPosts, selectPostById, selectPostsError, selectPostsFetchStatus } from "../features/posts/postsSlice";
 // import { selectUserById } from "../features/users/usersSlice";
 // import { selectAllPosts, selectPostsError, selectPostsFetchStatus } from "../features/posts/postsSlice";
@@ -82,7 +84,7 @@ const Home = () => {
    let postsContent;
 
    if (isLoadingPosts) {
-      postsContent = <p>Loading posts...</p>;
+      postsContent = <Spinner text="Loading Posts..." />;
    } else if (isSuccessPosts) {
       postsContent = (
          <div className="posts-list">

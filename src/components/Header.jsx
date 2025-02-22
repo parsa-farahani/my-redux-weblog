@@ -16,6 +16,9 @@ const Header = () => {
                <NavLink end to="/users" className="btn btn-outline-light" style={ ({isActive}) => ({ opacity: isActive ? .5 : 1 }) } >
                   Users
                </NavLink>
+               <NavLink end to="/not-found" className="btn btn-outline-light" style={ ({isActive}) => ({ opacity: isActive ? .5 : 1 }) } >
+                  Not-Found
+               </NavLink>
                <NavLink end to="/add-post" className="btn btn-success" style={ ({isActive}) => ({ opacity: isActive ? .5 : 1, marginLeft: 'auto' }) } >
                   <span className="icon me-2" >
                      <IoIosAddCircleOutline />
